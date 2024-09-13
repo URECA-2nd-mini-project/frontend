@@ -1,10 +1,10 @@
-// import Main from '../pages/Main';
-
 // Router 경로 정의
+import MainPage from '../pages/Main';
+
 const MainScreens = {
   Main: {
     path: '/',
-    // element: <Main />,
+    element: <MainPage />,
   },
 };
 
