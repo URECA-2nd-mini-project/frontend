@@ -16,11 +16,13 @@
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.26.2",
     "styled-component": "^2.8.0",
-    "styled-components": "^6.1.13"
+    "styled-components": "^6.1.13",
+    "vite-plugin-svgr": "^4.2.0"
   },
   "devDependencies": {
     "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
     "@eslint/js": "^9.9.0",
+    "@svgr/rollup": "^8.1.0",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.1",
