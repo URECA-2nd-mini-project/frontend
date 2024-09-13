@@ -5,7 +5,7 @@ import MusicMenu from '../../assets/icons/menu-music.svg?react';
 import MusicAlt from '../../assets/icons/music-alt.svg?react';
 
 const MenuContainer = styled.div`
-  width: 280px;
+  width: 254px;
   height: 56px;
   padding: 0 20px;
   display: flex;
@@ -16,10 +16,6 @@ const MenuContainer = styled.div`
   color: var(--gray-medium-color);
   font-weight: 500;
   border-radius: 8px;
-
-  &:hover {
-    background: var(--gray-bright-color);
-  }
 
   &.list-default {
     background-color: none;

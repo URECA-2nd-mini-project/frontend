@@ -6,22 +6,50 @@ import { useState } from 'react';
 const Container = styled.div`
   background: linear-gradient(#eeeff3, #e1e3ea);
   width: calc(1920px * 0.16);
-  padding: 64px 64px;
+  padding: 48px 64px 0 64px;
   display: flex;
   flex-direction: column;
-  gap: 80px;
+  justify-content: space-between;
+`;
+
+const LogoContainer = styled.div`
+  width: 180px;
+  height: 80px;
+  margin-bottom: 40px;
 `;
 
 const MenuTitle = styled.div`
   color: var(--gray-light-color);
   font-size: 14px;
   font-weight: 500;
+  margin-bottom: 20px;
 `;
 
 const MenuContainer = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 12px;
+  margin-bottom: 48px;
+`;
+
+const PlaylistContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+  &::-webkit-scrollbar {
+    width: 8px; /* 스크롤바의 너비 */
+    height: 32px; /* 스크롤바의 길이 */
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--gray-bright-color); /* 스크롤바의 색상 */
+    border-radius: 10px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: none; /*스크롤바 뒷 배경 색상*/
+  }
 `;
 
 const ListContainer = styled.div`
@@ -60,6 +88,42 @@ const Playlists = [
     name: '운동하면서 듣는 J-POP',
     id: 3,
   },
+  {
+    name: '운동하면서 듣는 J-POP',
+    id: 4,
+  },
+  {
+    name: '운동하면서 듣는 J-POP',
+    id: 5,
+  },
+  {
+    name: '운동하면서 듣는 J-POP',
+    id: 6,
+  },
+  {
+    name: '운동하면서 듣는 J-POP',
+    id: 7,
+  },
+  {
+    name: '운동하면서 듣는 J-POP',
+    id: 8,
+  },
+  {
+    name: '운동하면서 듣는 J-POP',
+    id: 9,
+  },
+  // {
+  //   name: '운동하면서 듣는 J-POP',
+  //   id: 10,
+  // },
+  // {
+  //   name: '운동하면서 듣는 J-POP',
+  //   id: 11,
+  // },
+  // {
+  //   name: '운동하면서 듣는 J-POP',
+  //   id: 12,
+  // },
 ];
 
 const NavMenu = () => {
@@ -71,17 +135,19 @@ const NavMenu = () => {
 
   return (
     <Container>
-      <Logo></Logo>
+      <LogoContainer>
+        <Logo></Logo>
+      </LogoContainer>
+      <MenuTitle>메뉴</MenuTitle>
       <MenuContainer>
-        <MenuTitle>메뉴</MenuTitle>
         <ListContainer>
           {Menu.map((item, index) => (
             <NavMenuList key={index} menuText={item.text} menuType={item.type} onSelect={handleMenuClick} isSelected={selectedMenu === item.type}></NavMenuList>
           ))}
         </ListContainer>
       </MenuContainer>
-      <MenuContainer>
-        <MenuTitle>플레이리스트</MenuTitle>
+      <MenuTitle>플레이리스트</MenuTitle>
+      <PlaylistContainer>
         <ListContainer>
           {Playlists.map((item, index) => (
             <NavMenuList
@@ -94,7 +160,7 @@ const NavMenu = () => {
             ></NavMenuList>
           ))}
         </ListContainer>
-      </MenuContainer>
+      </PlaylistContainer>
     </Container>
   );
 };
