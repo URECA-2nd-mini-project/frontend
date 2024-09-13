@@ -6,7 +6,7 @@ const MainText = styled.div`
 `;
 
 const Index = () => {
-  return <MainText>메인 페이지</MainText>;
+  return <MainText></MainText>;
 };
 
 export default Index;
