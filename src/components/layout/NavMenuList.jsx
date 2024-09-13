@@ -17,14 +17,19 @@ const MenuContainer = styled.div`
   font-weight: 500;
   border-radius: 8px;
 
-  &.list-clicked {
+  &:hover {
+    background: var(--gray-bright-color);
+  }
+
+  &.list-default {
     background-color: none;
   }
 
   &.list-clicked {
-    background-color: #dcdde7;
-    color: var(--primary-color);
     font-weight: 600;
+    background: #dcdde7;
+    color: var(--primary-color);
+    transition: background 0.4s;
   }
 `;
 
@@ -35,12 +40,22 @@ const MenuType = {
   playlist: MusicAlt,
 };
 
-const NavMenuList = ({ menuType, menuText, onSelect, isSelected }) => {
+const NavMenuList = ({ menuType, menuText, onSelect, isSelected, playlistId }) => {
+  // 메뉴 타입에 맞는 아이콘 지정
   const Icon = MenuType[menuType];
 
+  const setSelectedMenu = () => {
+    if (menuType === 'playlist') {
+      // 메뉴 타입이 playlist인 경우, SelectedMenu를 menuType_playlistId로 지정
+      onSelect(menuType + '_' + playlistId);
+    } else {
+      // 메뉴 타입이 playlist가 아닌 경우, SelectedMenu를 menuType(기본)으로 지정
+      onSelect(menuType);
+    }
+  };
+
   return (
-    <MenuContainer onClick={() => onSelect(menuType)} className={isSelected ? 'list-clicked' : 'list-default'}>
-      <Home></Home>
+    <MenuContainer onClick={() => setSelectedMenu()} className={isSelected ? 'list-clicked' : 'list-default'}>
       <Icon fill={isSelected ? 'var(--primary-color)' : 'var(--gray-medium-color)'}></Icon>
       <div>{menuText}</div>
     </MenuContainer>
