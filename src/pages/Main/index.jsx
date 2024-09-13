@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
 const MainText = styled.div`
-  color: var(--secondary-light-color);
+  color: var(--secondary-color);
   font-size: 200px;
 `;
 
