@@ -14,12 +14,4 @@ export default defineConfig({
       },
     },
   },
-  // 전역 CSS 설정
-  css: {
-    preprocessorOptions: {
-      scss: {
-        additionalData: `@import "./src/styles/_common.scss";`,
-      },
-    },
-  },
 });
