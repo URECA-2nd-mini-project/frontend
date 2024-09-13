@@ -30,16 +30,37 @@ const ListContainer = styled.div`
   gap: 12px;
 `;
 
-// const Menu = {
-//   home: {
-//     text: '홈',
-//     type: 'home',
-//   },
-//   playlists: {
-//     text: '플레이리스트',
-//     type: 'playlists',
-//   },
-// };
+// 내비게이션 메뉴 목록
+const Menu = [
+  {
+    text: '홈',
+    type: 'home',
+  },
+  {
+    text: '플레이리스트',
+    type: 'playlists',
+  },
+  {
+    text: '감정',
+    type: 'emotion',
+  },
+];
+
+// NOTE) playlist 더미 데이터, 수정 필요
+const Playlists = [
+  {
+    name: '코딩할 때 듣는 Lofi',
+    id: 1,
+  },
+  {
+    name: '드라이브엔 역시 시티팝',
+    id: 2,
+  },
+  {
+    name: '운동하면서 듣는 J-POP',
+    id: 3,
+  },
+];
 
 const NavMenu = () => {
   const [selectedMenu, setSelectedMenu] = useState(null);
@@ -54,15 +75,24 @@ const NavMenu = () => {
       <MenuContainer>
         <MenuTitle>메뉴</MenuTitle>
         <ListContainer>
-          <NavMenuList menuText={'홈'} menuType={'home'} onSelect={handleMenuClick} isSelected={selectedMenu === 'home'}></NavMenuList>
-          <NavMenuList menuText={'플레이리스트'} menuType={'playlists'} onSelect={handleMenuClick} isSelected={selectedMenu === 'playlists'}></NavMenuList>
-          <NavMenuList menuText={'감정'} menuType={'emotion'} onSelect={handleMenuClick} isSelected={selectedMenu === 'emotion'}></NavMenuList>
+          {Menu.map((item, index) => (
+            <NavMenuList key={index} menuText={item.text} menuType={item.type} onSelect={handleMenuClick} isSelected={selectedMenu === item.type}></NavMenuList>
+          ))}
         </ListContainer>
       </MenuContainer>
       <MenuContainer>
         <MenuTitle>플레이리스트</MenuTitle>
         <ListContainer>
-          <NavMenuList menuText={'코딩할 때 듣는 Lofi'} menuType={'playlist'} onSelect={handleMenuClick} isSelected={selectedMenu === 'playlist'}></NavMenuList>
+          {Playlists.map((item, index) => (
+            <NavMenuList
+              key={index}
+              menuText={item.name}
+              menuType={'playlist'}
+              onSelect={handleMenuClick}
+              isSelected={selectedMenu === `playlist_${item.id}`}
+              playlistId={item.id}
+            ></NavMenuList>
+          ))}
         </ListContainer>
       </MenuContainer>
     </Container>
