@@ -5,7 +5,7 @@ import { useState } from 'react';
 
 const Container = styled.div`
   background: linear-gradient(#eeeff3, #e1e3ea);
-  width: calc(1920px * 0.16);
+  width: 400px;
   padding: 48px 64px 0 64px;
   display: flex;
   flex-direction: column;
@@ -29,27 +29,17 @@ const MenuContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 12px;
-  margin-bottom: 48px;
+  margin-bottom: 72px;
 `;
 
 const PlaylistContainer = styled.div`
+  height: 600px;
   display: flex;
   flex-direction: column;
   gap: 12px;
+  overflow-x: hidden;
   overflow-y: auto;
-  &::-webkit-scrollbar {
-    width: 8px; /* 스크롤바의 너비 */
-    height: 32px; /* 스크롤바의 길이 */
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: var(--gray-bright-color); /* 스크롤바의 색상 */
-    border-radius: 10px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: none; /*스크롤바 뒷 배경 색상*/
-  }
+  scrollbar-color: var(--gray-bright-color) white;
 `;
 
 const ListContainer = styled.div`
@@ -88,42 +78,6 @@ const Playlists = [
     name: '운동하면서 듣는 J-POP',
     id: 3,
   },
-  {
-    name: '운동하면서 듣는 J-POP',
-    id: 4,
-  },
-  {
-    name: '운동하면서 듣는 J-POP',
-    id: 5,
-  },
-  {
-    name: '운동하면서 듣는 J-POP',
-    id: 6,
-  },
-  {
-    name: '운동하면서 듣는 J-POP',
-    id: 7,
-  },
-  {
-    name: '운동하면서 듣는 J-POP',
-    id: 8,
-  },
-  {
-    name: '운동하면서 듣는 J-POP',
-    id: 9,
-  },
-  // {
-  //   name: '운동하면서 듣는 J-POP',
-  //   id: 10,
-  // },
-  // {
-  //   name: '운동하면서 듣는 J-POP',
-  //   id: 11,
-  // },
-  // {
-  //   name: '운동하면서 듣는 J-POP',
-  //   id: 12,
-  // },
 ];
 
 const NavMenu = () => {
