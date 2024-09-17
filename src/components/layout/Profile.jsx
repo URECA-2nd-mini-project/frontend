@@ -28,7 +28,7 @@ const Profile = () => {
 
   return (
     <Container>
-      {isLoggedIn ? <ProfileImg src={imgLink} referrerPolicy="no-referrer" width="52" height="52"></ProfileImg> : <DefaultProfile></DefaultProfile>}
+      {isLoggedIn ? <ProfileImg src={imgLink} referrerPolicy="no-referrer"></ProfileImg> : <DefaultProfile></DefaultProfile>}
       {isLoggedIn ? <div>{userName}</div> : <div>로그인</div>}
     </Container>
   );
