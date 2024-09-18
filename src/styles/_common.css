@@ -7,4 +7,5 @@
   --gray-light-color: var(--gray-40, #bbbdc3);
   --gray-bright-color: var(--gray-20, #edeef2);
   --background-color: var(--gray-0, #f9f9f9);
+  --box-shadow-color: rgba(71, 89, 136, 0.1);
 }
