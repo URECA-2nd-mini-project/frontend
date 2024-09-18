@@ -64,7 +64,7 @@ const Menu = [
   },
 ];
 
-// NOTE) playlist 더미 데이터, 수정 필요
+// NOTE) playlist 더미 데이터, 통신 구현 후 수정 필요
 const Playlists = [
   {
     name: '코딩할 때 듣는 Lofi',

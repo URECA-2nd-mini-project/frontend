@@ -13,7 +13,7 @@ const Wrapper = styled.div`
 `;
 
 const Contents = styled.div`
-  width: 100%;
+  width: calc(100% - 420px);
   height: 100%;
   position: relative;
   display: flex;

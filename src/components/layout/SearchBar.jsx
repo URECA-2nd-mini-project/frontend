@@ -35,7 +35,7 @@ const SearchBar = () => {
     setInputText(event.target.value);
   };
 
-  // NOTE) 검색 API 구현 후 수정
+  // NOTE) 검색 API 구현 후 수정 필요
   const handleKeyPress = (event) => {
     if (event.key === 'Enter') {
       console.log(`검색) ${inputText}`);

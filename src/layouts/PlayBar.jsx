@@ -18,7 +18,7 @@ const Container = styled.div`
   z-index: 2;
   position: absolute;
   bottom: 0%;
-  background-color: var(--gray-bright-color); // 불투명도 어떻게?
+  background-color: rgba(237, 238, 243, 0.72);
   backdrop-filter: blur(10px);
 `;
 
@@ -54,7 +54,7 @@ const ArtistText = styled.div`
 `;
 
 const ProgressBarContainer = styled.div`
-  width: 520px;
+  width: 100%;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -199,7 +199,7 @@ const PlayBar = () => {
       </ProgressBarContainer>
       <ButtonContainer>
         <Prev />
-        <div onClick={handleIsPlaying}>{isPlaying ? <Play /> : <Pause />}</div>
+        <div onClick={handleIsPlaying}>{!isPlaying ? <Play /> : <Pause />}</div>
         <Next />
       </ButtonContainer>
     </Container>
