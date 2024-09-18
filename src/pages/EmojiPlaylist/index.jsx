@@ -41,4 +41,3 @@ function index(props) {
   );
 }
 
-export default index;
