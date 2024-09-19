@@ -1,10 +1,11 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import { AppRouteDef } from './RouteDef';
+import { MainRouteDef, LoginRouteDef } from './RouteDef';
 import Header from '../layouts/Header';
 import NavMenu from '../layouts/NavMenu';
 import PlayBar from '../layouts/PlayBar';
 import styled from 'styled-components';
 
+// MainLayout 정의
 const Wrapper = styled.div`
   width: 100%;
   height: 100%;
@@ -20,22 +21,35 @@ const Contents = styled.div`
   flex-direction: column;
 `;
 
+// 메인 화면 레이아웃 (NavMenu, Header, PlayBar를 사용)
+const MainLayout = ({ children }) => (
+  <Wrapper>
+    <NavMenu />
+    <Contents>
+      <Header />
+      {children}
+      <PlayBar />
+    </Contents>
+  </Wrapper>
+);
+
+// 로그인 화면 레이아웃 (NavMenu, Header, PlayBar를 사용하지 않음)
+const LoginLayout = ({ children }) => <div>{children}</div>;
+
 const AppPages = () => {
   return (
     <BrowserRouter>
-      <Wrapper>
-        <NavMenu />
-        <Contents>
-          <Header />
-          <Routes>
-            {/* RouteDef에 정의된 경로를 불러와 현재 경로에 맞는 화면을 보여줌 */}
-            {Object.entries({ ...AppRouteDef }).map(([name, { path, element }], index) => (
-              <Route key={name + index} path={path} element={element} />
-            ))}
-          </Routes>
-          <PlayBar />
-        </Contents>
-      </Wrapper>
+      <Routes>
+        {/* MainRouteDef에 해당하는 경로 */}
+        {Object.entries({ ...MainRouteDef }).map(([name, { path, element }], index) => (
+          <Route key={name + index} path={path} element={<MainLayout>{element}</MainLayout>} />
+        ))}
+
+        {/* LoginRouteDef에 해당하는 경로 */}
+        {Object.entries({ ...LoginRouteDef }).map(([name, { path, element }], index) => (
+          <Route key={name + index} path={path} element={<LoginLayout>{element}</LoginLayout>} />
+        ))}
+      </Routes>
     </BrowserRouter>
   );
 };
