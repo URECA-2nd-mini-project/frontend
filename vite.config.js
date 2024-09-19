@@ -11,13 +11,21 @@ export default defineConfig({
       include: '**/*.svg?react',
     }),
   ],
-  // 서버 통신 프록시 주소 설정
   server: {
+    // 프록시 설정 추가
     proxy: {
+      // Spring 서버
       '/api': {
         target: 'http://localhost:8080',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
+      },
+      // Youtube v3 API
+      '/youtube': {
+        target: 'https://youtube.googleapis.com',
+        rewrite: (path) => path.replace(/^\/youtube/, ''),
+        changeOrigin: true,
+        secure: false, // TLS 인증서 검사 비활성화
       },
     },
   },
