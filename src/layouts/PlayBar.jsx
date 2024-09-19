@@ -6,6 +6,7 @@ import Play from '../assets/icons/play.svg?react';
 import Pause from '../assets/icons/pause.svg?react';
 import Next from '../assets/icons/play-next.svg?react';
 import Prev from '../assets/icons/play-prev.svg?react';
+import { useSelector } from 'react-redux';
 
 const Container = styled.div`
   width: calc(100% - 128px);
@@ -100,6 +101,7 @@ const Slider = styled.input`
 `;
 
 const DurationText = styled.div`
+  width: 40px;
   color: var(--gray-light-color);
   font-size: 16px;
   font-weight: 400;
@@ -118,9 +120,10 @@ const PlayBar = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [seeking, setSeeking] = useState(false);
   const [duration, setDuration] = useState(null);
-
   const playerRef = useRef(null);
+  const { id, title, artist } = useSelector((state) => state.music);
 
+  console.log(id, title, artist);
   // 재생, 정지 상태를 설정
   // TODO) spacebar 입력 시 재생/정지되게 하는 eventhandler 추가
   const handleIsPlaying = () => {
@@ -155,8 +158,6 @@ const PlayBar = () => {
     }
   };
 
-  const ThumbnailLink = 'https://img.youtube.com/vi/b4AuXkbe288/maxresdefault.jpg';
-
   // duration 값이 설정된 후 화면 렌더링
   useEffect(() => {
     if (duration) {
@@ -165,23 +166,26 @@ const PlayBar = () => {
   }, [duration]);
 
   // played 값이 변경될 때마다 화면 렌더링
-  useEffect(() => {}, [played]);
+  useEffect(() => {}, [played, id]);
 
   return (
     <Container>
-      <ThumbnailImg src={ThumbnailLink} referrerPolicy="no-referrer"></ThumbnailImg>
+      <ThumbnailImg key={id} src={`https://img.youtube.com/vi/${id}/maxresdefault.jpg`} referrerPolicy="no-referrer"></ThumbnailImg>
       <TitleContainer>
-        <TitleText>한걸음 더</TitleText>
-        <ArtistText>윤상</ArtistText>
+        <TitleText>{title}</TitleText>
+        <ArtistText>{artist}</ArtistText>
       </TitleContainer>
       <ProgressBarContainer>
         <DurationText>{formatTime(played * duration)}</DurationText>
         <ReactPlayer
-          url="https://www.youtube.com/watch?v=b4AuXkbe288"
+          // key 속성이 업데이트될 때마다 ReactPlayer가 재렌더링
+          key={id}
+          url={`https://www.youtube.com/watch?v=${id}`}
           width={0}
           height={0}
           ref={playerRef}
           playing={isPlaying}
+          onReady={() => setIsPlaying(true)} // 준비 완료 후 자동 재생
           onProgress={handleProgress}
           onDuration={handleDuration}
         />
