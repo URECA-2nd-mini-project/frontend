@@ -1,11 +1,14 @@
 import axios from 'axios';
 
-const baseAPI = (url) => {
+const baseAPI = (url, key) => {
   const config = {
     baseURL: url,
     headers: {
       'Cache-Control': 'no-cache', // 캐시를 사용하지 않도록 설정
       'Access-Control-Allow-Credentials': true, // 쿠키 등 인증 정보의 접근 허용
+    },
+    params: {
+      key: key,
     },
   };
 
@@ -76,4 +79,4 @@ const authAPI = (url) => {
 
 export const defaultInstance = baseAPI(''); // 서버 주소 추가
 export const authInstance = authAPI(''); // 서버 주소 추가
-export const youtubeInstance = baseAPI(import.meta.env.VITE_YOUTUBE_API_KEY);
+export const youtubeInstance = baseAPI('https://youtube.googleapis.com/youtube/v3', import.meta.env.VITE_YOUTUBE_API_KEY);
