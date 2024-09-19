@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import styled from 'styled-components';
 import PlayDetail from '../../assets/icons/list-detail.svg?react';
 import PlayList from '../../assets/icons/playlist.svg?react';
@@ -58,7 +58,7 @@ const Content = styled.div`
   padding: 0px 20px;
 `;
 
-const TagBg = styled.div`
+const TagBg = styled.button`
   border-radius: 40px;
   border:
     1px solid,
@@ -70,6 +70,13 @@ const TagBg = styled.div`
   color: var(--gray-medium-color);
   font-size: 18px;
   font-weight: bold;
+  background: none;
+  &:hover {
+    background: white;
+  }
+  &:active {
+    background: var(--gray-light-color);
+  }
 `;
 
 const CheckIcon = styled(CheckBox)`
@@ -80,16 +87,57 @@ const CheckedIcon = styled(Checked)`
   margin-right: 10px;
 `;
 
-const CheckCtrl = styled.div``;
-
+const CheckCtrl = styled.div`
+  display: flex;
+  align-items: center;
+`;
+const DetailePt = styled(PlayDetail)`
+  cursor: pointer;
+`;
 function index(props) {
   const [detailButton, setDetailButton] = useState(true);
   const [checkBox, setCheckBox] = useState(false);
   const [currentIcon, setCurrentIcon] = useState('check');
+  const dragItem = useRef();
+  const dragOverItem = useRef();
+  const [list, setList] = useState(['코딩할 때 듣는 Lofi', '드라이브엔 올드 시티팝', '겨울에 듣는 재즈 캐롤']);
+
+  const dragStart = (idx) => {
+    dragItem.current = idx;
+  };
+
+  const dragEnter = (idx) => {
+    dragOverItem.current = idx;
+  };
+
+  const drop = () => {
+    const copyListItems = [...list];
+    const dragItemConotent = copyListItems[dragItem.current];
+    copyListItems.splice(dragItem.current, 1);
+    copyListItems.splice(dragOverItem.current, 0, dragItemConotent);
+    dragItem.current = null;
+    dragOverItem.current = null;
+    setList(copyListItems);
+  };
 
   function handleClick() {
     setDetailButton((prev) => !prev);
     setCheckBox((prev) => !prev);
+  }
+
+  function handleClickDelete() {
+    // setDetailButton((prev) => !prev);
+    // setCheckBox((prev) => !prev);
+    if (currentIcon != 'check') {
+      console.log(list);
+      list.pop();
+      console.log(list);
+    }
+  }
+
+  function handleClickSave() {
+    // setDetailButton((prev) => !prev);
+    // setCheckBox((prev) => !prev);
   }
 
   function handleIconClick() {
@@ -103,35 +151,32 @@ function index(props) {
           <PlayList></PlayList>
           <PlaylistTitle>모든 플레이리스트</PlaylistTitle>
           {detailButton ? (
-            <PlayDetail onClick={handleClick}></PlayDetail>
+            <DetailePt onClick={handleClick}></DetailePt>
           ) : (
             <>
-              <TagBg onClick={handleClick}>삭제</TagBg>
-              <TagBg onClick={handleClick} style={{ color: 'var(--primary-color)', border: '1px solid var(--primary-color)' }}>
+              <TagBg onClick={handleClickDelete}>삭제</TagBg>
+              <TagBg onClick={handleClickSave} style={{ color: 'var(--primary-color)', border: '1px solid var(--primary-color)' }}>
                 저장
               </TagBg>
             </>
           )}
         </Playlistbar>
-        <PlaylistBox>
-          <MusicIcon></MusicIcon>
-          <Content>코딩할 때 듣는 lofi</Content>
-          {checkBox && <CheckCtrl onClick={handleIconClick}>{currentIcon ? <CheckIcon /> : <CheckedIcon />}</CheckCtrl>}
-
-          <ListOrder></ListOrder>
-        </PlaylistBox>
-        <PlaylistBox>
-          <MusicIcon></MusicIcon>
-          <Content>드라이브엔 올드 시티팝</Content>
-          {checkBox && <CheckCtrl onClick={handleIconClick}>{currentIcon ? <CheckIcon /> : <CheckedIcon />}</CheckCtrl>}
-          <ListOrder></ListOrder>
-        </PlaylistBox>
-        <PlaylistBox>
-          <MusicIcon></MusicIcon>
-          <Content>겨울에 듣는 재즈 캐롤</Content>
-          {checkBox && <CheckCtrl onClick={handleIconClick}>{currentIcon ? <CheckIcon /> : <CheckedIcon />}</CheckCtrl>}
-          <ListOrder></ListOrder>
-        </PlaylistBox>
+        {list &&
+          list.map((item, index) => (
+            <PlaylistBox
+              onDragStart={() => dragStart(index)}
+              onDragEnter={() => dragEnter(index)}
+              onDragOver={(e) => e.preventDefault()}
+              onDragEnd={drop}
+              key={index}
+              draggable
+            >
+              <MusicIcon></MusicIcon>
+              <Content>{item}</Content>
+              {checkBox && <CheckCtrl onClick={handleIconClick}>{currentIcon ? <CheckIcon /> : <CheckedIcon />}</CheckCtrl>}
+              <ListOrder></ListOrder>
+            </PlaylistBox>
+          ))}
       </Container>
     </Background>
   );

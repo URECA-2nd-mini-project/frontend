@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import styled from 'styled-components';
 import AlbumIcon from '../../assets/icons/album.svg?react';
 import PalyButton from '../../assets/icons/play-button.svg?react';
@@ -110,7 +110,36 @@ const Song = styled.div`
   padding: 0px 20px;
 `;
 
+const TagBg = styled.button`
+  border-radius: 40px;
+  border:
+    1px solid,
+    var(--gray-medium-color);
+  padding: 10px 2px;
+  margin: 3px;
+  width: 80px;
+  text-align: center;
+  color: var(--gray-medium-color);
+  font-size: 18px;
+  font-weight: bold;
+  background: none;
+  &:hover {
+    background: white;
+  }
+  &:active {
+    background: var(--gray-light-color);
+  }
+`;
 function index(props) {
+  const imageInput = useRef();
+  const imgupload = () => {
+    imageInput.current.click();
+  };
+  // const imageInput = useRef();
+  // const imgupload = () => {
+  //   imageInput.current.click();
+  // };
+
   return (
     <Background>
       <Container>
@@ -121,6 +150,9 @@ function index(props) {
                 <UserImg>
                   <CardImg></CardImg>
                 </UserImg>
+                <input type="file" style={{ display: 'none' }} ref={imageInput}></input>
+                <TagBg onClick={imgupload}>수정</TagBg>
+
                 <CardText>
                   🌆🥺🪩😆🚘 <br />
                   퇴근 후 드라이브 노래로 딱인 플리 <br />이 플리 하나면 집 도착!!!
