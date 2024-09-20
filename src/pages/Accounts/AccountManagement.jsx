@@ -26,14 +26,14 @@ const AccountManagement = () => {
 
   return (
     <div style={{ marginBottom: '20px' }}>
-      <h2>계정 관리</h2>
+      <h2 style={{ color: 'var(--gray-dark-color)' }}>계정 관리</h2>
       <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
         {/* 로그아웃 버튼 */}
         <button
           onClick={handleLogoutClick}
           style={{
             padding: '10px',
-            width: '612px',
+            width: '680px',
             height: '101px',
             cursor: 'pointer',
             background: '#ffffff',
@@ -43,15 +43,17 @@ const AccountManagement = () => {
             textAlign: 'left',
           }}
         >
-          <p style={{ margin: '8px 0 0' }}>로그아웃</p>
-          <p style={{ margin: '8px 0 0' }}>로그아웃 시 현재 세션이 종료되며, 다시 로그인해야 계정에 접근할 수 있습니다.</p>
+          <p style={{ margin: '8px 0 0', color: 'var(--gray-dark-color)', fontWeight: 'bold', fontSize: '20px' }}>로그아웃</p>
+          <p style={{ margin: '8px 0 0', color: 'var(--gray-medium-color)', fontSize: '18px' }}>
+            로그아웃 시 현재 세션이 종료되며, 다시 로그인해야 계정에 접근할 수 있습니다.
+          </p>
         </button>
         {/* 계정 탈퇴 버튼 */}
         <button
           onClick={handleDeleteClick}
           style={{
             padding: '10px',
-            width: '612px',
+            width: '680px',
             height: '101px',
             cursor: 'pointer',
             background: '#ffffff',
@@ -61,8 +63,10 @@ const AccountManagement = () => {
             textAlign: 'left',
           }}
         >
-          <p style={{ margin: '8px 0 0' }}>계정 탈퇴하기</p>
-          <p style={{ margin: '8px 0 0' }}>탈퇴 시 작성한 감정 및 태그 정보가 삭제되며 복구되지 않습니다.</p>
+          <p style={{ margin: '8px 0 0', color: 'var(--gray-dark-color)', fontWeight: 'bold', fontSize: '20px' }}>계정 탈퇴하기</p>
+          <p style={{ margin: '8px 0 0', color: 'var(--gray-medium-color)', fontSize: '18px' }}>
+            탈퇴 시 작성한 감정 및 태그 정보가 삭제되며 복구되지 않습니다.
+          </p>
         </button>
 
         {/* 모달 창 */}
@@ -82,23 +86,37 @@ const AccountManagement = () => {
           >
             <div
               style={{
-                backgroundColor: '#ffffff',
+                width: '345px', // 가로 크기
+                height: '134px', // 세로 크기
+                backgroundColor: 'var(--background-color)', // 모달 창 배경색
                 padding: '20px',
-                borderRadius: '8px',
+                borderRadius: '18px', // cornerradius 18px
                 boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
                 textAlign: 'center',
               }}
             >
-              <h3>{modalType === 'logout' ? '로그아웃 하시겠습니까?' : '계정을 탈퇴하시겠습니까?'}</h3>
+              <h3
+                style={{
+                  color: 'var(--gray-dark-color)', // 텍스트 색상
+                  fontSize: '24px', // 텍스트 크기 24px
+                  fontWeight: 'bold', // 볼드체
+                }}
+              >
+                {modalType === 'logout' ? '로그아웃 하시겠습니까?' : '계정을 탈퇴하시겠습니까?'}
+              </h3>
               <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginTop: '20px' }}>
                 <button
                   onClick={handleCloseModal}
                   style={{
-                    padding: '10px 20px',
-                    background: '#f0f0f0',
+                    width: '133px', // 가로 크기 133px
+                    height: '40.23px', // 세로 크기 40.23px
+                    backgroundColor: 'var(--gray-bright-color)', // 취소 버튼 배경색
+                    color: 'var(--gray-dark-color)', // 텍스트 색상
                     border: 'none',
                     borderRadius: '20px',
                     cursor: 'pointer',
+                    fontSize: '16px', // 텍스트 크기 16px
+                    fontWeight: 'bold', // 볼드체
                     boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
                   }}
                 >
@@ -107,11 +125,15 @@ const AccountManagement = () => {
                 <button
                   onClick={handleCloseModal}
                   style={{
-                    padding: '10px 20px',
-                    background: '#f0f0f0',
+                    width: '133px', // 가로 크기 133px
+                    height: '40.23px', // 세로 크기 40.23px
+                    backgroundColor: 'var(--gray-bright-color)', // 로그아웃/탈퇴 버튼 배경색
+                    color: 'var(--gray-dark-color)', // 텍스트 색상
                     border: 'none',
                     borderRadius: '20px',
                     cursor: 'pointer',
+                    fontSize: '16px', // 텍스트 크기 16px
+                    fontWeight: 'bold', // 볼드체
                     boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
                   }}
                 >
