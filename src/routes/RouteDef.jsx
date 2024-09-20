@@ -3,6 +3,9 @@ import MainPage from '../pages/Main';
 import PlaylistAll from '../pages/PlaylistAll';
 import EmojiPlaylist from '../pages/EmojiPlaylist';
 import DetailPlaylist from '../pages/DetailPlaylist';
+import AccountsMainPage from '../pages/Accounts/AccountsMainPage.jsx';
+import MueLoginPage from '../pages/FirstStep/MueLoginPage.jsx';
+import EmotionBoard from '../pages/SecondStep/EmotionBoard.jsx';
 
 // 메인 화면 경로
 const MainScreens = {
@@ -21,6 +24,10 @@ const MainScreens = {
   DetailPlaylist: {
     path: '/detailplay',
     element: <DetailPlaylist />,
+  },
+  Accounts: {
+    path: '/accounts',
+    element: <AccountsMainPage />,
   },
 };
 // 로그인 화면 경로

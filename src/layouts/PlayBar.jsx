@@ -65,25 +65,22 @@ const ProgressBarContainer = styled.div`
 
 const Slider = styled.input`
   margin: 0 20px;
-  /* removing default appearance */
   -webkit-appearance: none;
   appearance: none;
-
-  /* creating a custom design */
   width: 100%;
   cursor: pointer;
   outline: none;
-
-  /*  slider progress trick  */
   overflow: hidden;
   border-radius: 16px;
-  -webkit-appearance: none;
 
+  // slider의 트랙 CSS 설정
   &::-webkit-slider-runnable-track {
     height: 8px;
     background: #ffffff;
     border-radius: 16px;
   }
+
+  // slider의 thumb(조절 버튼) CSS 설정
   &::-webkit-slider-thumb {
     /* 기본 테마 숨김 */
     -webkit-appearance: none;
