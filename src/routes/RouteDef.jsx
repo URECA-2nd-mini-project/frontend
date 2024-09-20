@@ -1,8 +1,8 @@
 // Router 경로 정의
 import MainPage from '../pages/Main';
-import AccountsMainPage from '../pages/Accounts/AccountsMainPage.jsx';
-import MueLoginPage from '../pages/FirstStep/MueLoginPage.jsx';
-import EmotionBoard from '../pages/SecondStep/EmotionBoard.jsx';
+import PlaylistAll from '../pages/PlaylistAll';
+import EmojiPlaylist from '../pages/EmojiPlaylist';
+import DetailPlaylist from '../pages/DetailPlaylist';
 
 // 메인 화면 경로
 const MainScreens = {
@@ -10,9 +10,17 @@ const MainScreens = {
     path: '/',
     element: <MainPage />,
   },
-  Accounts: {
-    path: '/accounts',
-    element: <AccountsMainPage />,
+  PlaylistAll: {
+    path: '/playlist',
+    element: <PlaylistAll />,
+  },
+  EmojiPlaylist: {
+    path: '/emojiplay',
+    element: <EmojiPlaylist />,
+  },
+  DetailPlaylist: {
+    path: '/detailplay',
+    element: <DetailPlaylist />,
   },
 };
 // 로그인 화면 경로
