@@ -1,31 +1,33 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
-import AlbumIcon from '../../assets/icons/album.svg?react';
-import PalyButton from '../../assets/icons/play-button.svg?react';
 import MusicIcon from '../../assets/icons/musiclist-alt.svg?react';
-import PlayDetail from '../../assets/icons/list-detail.svg?react';
+import PlayDetailIcon from '../../assets/icons/list-detail.svg?react';
 import CardImg from '../../assets/icons/card-image.svg?react';
+import MusicList from '../../components/dashboard/MusicList';
 
 const Background = styled.div`
   background: #f9f9f9;
   width: 100%;
   height: 100%;
   color: var(--primary-color);
+  overflow: auto;
 `;
+
 const Container = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 100vh;
+  margin-top: 20px;
 `;
+
 const PlayAll = styled.div`
-  margin-top: 30px;
   display: flex;
   display-derection: row;
   align-items: center;
   justify-content: space-between;
 `;
+
 const Card = styled.div`
   width: 400px;
   background-color: white;
@@ -38,30 +40,43 @@ const Card = styled.div`
   align-items: center;
   justify-content: center;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  margin: 50px 20px 5px 0px;
+  margin: 0px 20px 10px 0px;
 `;
 
 const CardText = styled.div`
   border-radius: 8px;
   width: 350px;
-  height: 150px;
+  height: 100px;
   background-color: white;
   padding: 5px;
 `;
 
 const UserImg = styled.div`
-  width: 350px;
+  width: 360px;
   height: 360px;
   background-color: var(--primary-color);
   border-radius: 8px;
   margin-bottom: 2px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
 `;
+const PlaylistbarBox = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  width: 1140px;
+`;
+
 const Playlistbar = styled.div`
+  height: 49px;
+  width: 680px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 10px;
-  margin-bottom: 10px;
+  margin-buttom: 10px;
 `;
 
 const PlaylistTitle = styled.div`
@@ -82,34 +97,6 @@ const PlayBg = styled.div`
   padding: 20px 50px;
 `;
 
-const PlayBox = styled.div`
-  background-color: white;
-  width: 560px;
-  height: 75px;
-  padding: 10px 20px;
-  margin-bottom: 10px;
-  border:
-    1px solid,
-    white;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-`;
-
-const Album = styled.div`
-  width: 64px;
-  height: 64px;
-  border: 1px, solid, black;
-`;
-
-const Song = styled.div`
-  flex: 1;
-  text-align: left;
-  padding: 0px 20px;
-`;
-
 const TagBg = styled.button`
   border-radius: 40px;
   border:
@@ -122,6 +109,31 @@ const TagBg = styled.button`
   color: var(--gray-medium-color);
   font-size: 18px;
   font-weight: bold;
+  background: white;
+  &:hover {
+    background: var(--gray-light-color);
+  }
+  &:active {
+    background: white;
+  }
+  cursor: pointer;
+  position: absolute;
+`;
+const DetailePoint = styled(PlayDetailIcon)`
+  cursor: pointer;
+`;
+const Tagbtn = styled.button`
+  border-radius: 40px;
+  border:
+    1px solid,
+    var(--gray-medium-color);
+  padding: 10px 2px;
+  margin-left: 5px;
+  width: 80px;
+  text-align: center;
+  color: var(--gray-medium-color);
+  font-size: 18px;
+  font-weight: bold;
   background: none;
   &:hover {
     background: white;
@@ -129,96 +141,73 @@ const TagBg = styled.button`
   &:active {
     background: var(--gray-light-color);
   }
+  cursor: pointer;
 `;
 function index(props) {
-  const imageInput = useRef();
-  const imgupload = () => {
-    imageInput.current.click();
-  };
-  // const imageInput = useRef();
-  // const imgupload = () => {
-  //   imageInput.current.click();
-  // };
+  const [detailButton, setDetailButton] = useState(true);
+  const [checkBox, setCheckBox] = useState(false);
+  const [playlists, setPlaylists] = useState();
 
+  // 플레이리스트 수정
+  const handleClick = () => {
+    setDetailButton((prev) => !prev);
+    setCheckBox((prev) => !prev);
+  };
+
+  //플레이리스트 삭제
+  const handleClickDelete = () => {
+    setDetailButton((prev) => !prev);
+    setPlaylists();
+    setCheckedItems();
+  };
+  // 플레이리스트 저장
+  const handleClickSave = () => {
+    setDetailButton((prev) => !prev);
+    setCheckBox((prev) => !prev);
+  };
   return (
     <Background>
       <Container>
+        <PlaylistbarBox>
+          <Playlistbar>
+            <MusicIcon></MusicIcon>
+            <PlaylistTitle>드라이브엔 역시 올드 시티팝</PlaylistTitle>
+            {detailButton ? (
+              <DetailePoint onClick={handleClick}></DetailePoint>
+            ) : (
+              <>
+                <Tagbtn onClick={handleClickDelete}>삭제</Tagbtn>
+                <Tagbtn onClick={handleClickSave} style={{ color: 'var(--primary-color)', border: '1px solid var(--primary-color)' }}>
+                  저장
+                </Tagbtn>
+              </>
+            )}
+          </Playlistbar>
+        </PlaylistbarBox>
         <PlayAll>
-          <div>
-            <Card>
-              <div>
-                <UserImg>
-                  <CardImg></CardImg>
-                </UserImg>
-                <input type="file" style={{ display: 'none' }} ref={imageInput}></input>
-                <TagBg onClick={imgupload}>수정</TagBg>
+          <Card>
+            <div>
+              <UserImg>
+                <CardImg></CardImg>
+                <input type="file" style={{ display: 'none' }}></input>
+                <TagBg onClick={null} style={{ display: 'hidden' }}>
+                  수정
+                </TagBg>
+              </UserImg>
 
-                <CardText>
-                  🌆🥺🪩😆🚘 <br />
-                  퇴근 후 드라이브 노래로 딱인 플리 <br />이 플리 하나면 집 도착!!!
-                </CardText>
-              </div>
-            </Card>
-          </div>
-          <div>
-            <Playlistbar>
-              <MusicIcon></MusicIcon>
-              <PlaylistTitle>드라이브엔 역시 올드 시티팝</PlaylistTitle>
-              <PlayDetail></PlayDetail>
-            </Playlistbar>
-            <PlayBg>
-              <PlayBox>
-                <Album>
-                  <AlbumIcon></AlbumIcon>
-                </Album>
-                <Song>
-                  <div style={{ fontWeight: 'bold', marginBottom: '3px' }}>지난 날</div>
-                  <div>유재하</div>
-                </Song>
-                <PalyButton></PalyButton>
-              </PlayBox>
-              <PlayBox>
-                <Album>
-                  <AlbumIcon></AlbumIcon>
-                </Album>
-                <Song>
-                  <div style={{ fontWeight: 'bold', marginBottom: '3px' }}>지난 날</div>
-                  <div>유재하</div>
-                </Song>
-                <PalyButton></PalyButton>
-              </PlayBox>
-              <PlayBox>
-                <Album>
-                  <AlbumIcon></AlbumIcon>
-                </Album>
-                <Song>
-                  <div style={{ fontWeight: 'bold', marginBottom: '3px' }}>지난 날</div>
-                  <div>유재하</div>
-                </Song>
-                <PalyButton></PalyButton>
-              </PlayBox>
-              <PlayBox>
-                <Album>
-                  <AlbumIcon></AlbumIcon>
-                </Album>
-                <Song>
-                  <div style={{ fontWeight: 'bold', marginBottom: '3px' }}>지난 날</div>
-                  <div>유재하</div>
-                </Song>
-                <PalyButton></PalyButton>
-              </PlayBox>
-              <PlayBox>
-                <Album>
-                  <AlbumIcon></AlbumIcon>
-                </Album>
-                <Song>
-                  <div style={{ fontWeight: 'bold', marginBottom: '3px' }}>지난 날</div>
-                  <div>유재하</div>
-                </Song>
-                <PalyButton></PalyButton>
-              </PlayBox>
-            </PlayBg>
-          </div>
+              <CardText>
+                🌆🥺🪩😆🚘 <br />
+                퇴근 후 드라이브 노래로 딱인 플리 <br />이 플리 하나면 집 도착!!!
+              </CardText>
+            </div>
+          </Card>
+          <PlayBg>
+            <MusicList></MusicList>
+            <MusicList></MusicList>
+            <MusicList></MusicList>
+            <MusicList></MusicList>
+            <MusicList></MusicList>
+          </PlayBg>
         </PlayAll>
       </Container>
     </Background>

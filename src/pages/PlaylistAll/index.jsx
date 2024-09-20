@@ -1,9 +1,8 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import PlayDetail from '../../assets/icons/list-detail.svg?react';
-import PlayList from '../../assets/icons/playlist.svg?react';
+import PlayDetailIcon from '../../assets/icons/list-detail.svg?react';
+import PlayListIcon from '../../assets/icons/playlist.svg?react';
 import MusicIcon from '../../assets/icons/musiclist-alt.svg?react';
-import ListOrder from '../../assets/icons/menu-burger.svg?react';
 import CheckBox from '../../assets/icons/checkbox.svg?react';
 import Checked from '../../assets/icons/checkedbox.svg?react';
 
@@ -12,6 +11,7 @@ const Background = styled.div`
   width: 100%;
   height: 100%;
   color: var(--primary-color);
+  overflow: auto;
 `;
 
 const Container = styled.div`
@@ -19,7 +19,7 @@ const Container = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 100vh;
+  margin-top: 20px;
 `;
 
 const PlaylistBox = styled.div`
@@ -37,6 +37,7 @@ const PlaylistBox = styled.div`
 `;
 const Playlistbar = styled.div`
   width: 720px;
+  height: 49px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -51,8 +52,9 @@ const PlaylistTitle = styled.div`
   font-size: 20px;
 `;
 
-const Content = styled.div`
+const PlaylistContent = styled.div`
   font-size: 18px;
+  font-weight: bold;
   flex: 1;
   text-align: left;
   padding: 0px 20px;
@@ -64,7 +66,7 @@ const TagBg = styled.button`
     1px solid,
     var(--gray-medium-color);
   padding: 10px 2px;
-  margin: 3px;
+  margin-left: 5px;
   width: 80px;
   text-align: center;
   color: var(--gray-medium-color);
@@ -77,81 +79,75 @@ const TagBg = styled.button`
   &:active {
     background: var(--gray-light-color);
   }
-`;
-
-const CheckIcon = styled(CheckBox)`
-  margin-right: 10px;
-`;
-
-const CheckedIcon = styled(Checked)`
-  margin-right: 10px;
+  cursor: pointer;
 `;
 
 const CheckCtrl = styled.div`
   display: flex;
   align-items: center;
 `;
-const DetailePt = styled(PlayDetail)`
+const DetailePoint = styled(PlayDetailIcon)`
   cursor: pointer;
 `;
 function index(props) {
   const [detailButton, setDetailButton] = useState(true);
   const [checkBox, setCheckBox] = useState(false);
-  const [currentIcon, setCurrentIcon] = useState('check');
-  const dragItem = useRef();
-  const dragOverItem = useRef();
-  const [list, setList] = useState(['코딩할 때 듣는 Lofi', '드라이브엔 올드 시티팝', '겨울에 듣는 재즈 캐롤']);
 
-  const dragStart = (idx) => {
-    dragItem.current = idx;
-  };
+  const Playlists = [
+    {
+      name: '코딩할 때 듣는 Lofi',
+      id: 1,
+    },
+    {
+      name: '드라이브엔 역시 시티팝',
+      id: 2,
+    },
+    {
+      name: '운동하면서 듣는 J-POP',
+      id: 3,
+    },
+  ];
 
-  const dragEnter = (idx) => {
-    dragOverItem.current = idx;
-  };
+  const [checkedItems, setCheckedItems] = useState(Array(Playlists.length).fill(false));
+  const [playlists, setPlaylists] = useState([...Playlists]);
 
-  const drop = () => {
-    const copyListItems = [...list];
-    const dragItemConotent = copyListItems[dragItem.current];
-    copyListItems.splice(dragItem.current, 1);
-    copyListItems.splice(dragOverItem.current, 0, dragItemConotent);
-    dragItem.current = null;
-    dragOverItem.current = null;
-    setList(copyListItems);
-  };
-
-  function handleClick() {
+  // 플레이리스트 수정
+  const handleClick = () => {
     setDetailButton((prev) => !prev);
     setCheckBox((prev) => !prev);
-  }
+  };
 
-  function handleClickDelete() {
-    // setDetailButton((prev) => !prev);
-    // setCheckBox((prev) => !prev);
-    if (currentIcon != 'check') {
-      console.log(list);
-      list.pop();
-      console.log(list);
-    }
-  }
+  //플레이리스트 삭제
+  const handleClickDelete = () => {
+    const newPlaylists = playlists.filter((_, index) => !checkedItems[index]);
+    setPlaylists(newPlaylists);
+    setCheckedItems(Array(newPlaylists.length).fill(false)); // 체크 상태 초기화
+  };
 
-  function handleClickSave() {
-    // setDetailButton((prev) => !prev);
-    // setCheckBox((prev) => !prev);
-  }
+  // playlists 변경 확인
+  useEffect(() => {
+    console.log(playlists);
+  }, [playlists]);
 
-  function handleIconClick() {
-    setCurrentIcon((prev) => !prev);
-  }
+  // 플레이리스트 저장
+  const handleClickSave = () => {
+    setDetailButton((prev) => !prev);
+    setCheckBox((prev) => !prev);
+  };
+
+  // 플레이리스트
+  const handleIconClick = (index) => {
+    setCheckedItems((prev) => prev.map((item, i) => (i === index ? !item : item)));
+  };
 
   return (
     <Background>
       <Container>
         <Playlistbar>
-          <PlayList></PlayList>
+          <PlayListIcon></PlayListIcon>
           <PlaylistTitle>모든 플레이리스트</PlaylistTitle>
           {detailButton ? (
-            <DetailePt onClick={handleClick}></DetailePt>
+            <DetailePoint onClick={handleClick}></DetailePoint>
           ) : (
             <>
               <TagBg onClick={handleClickDelete}>삭제</TagBg>
@@ -161,22 +157,13 @@ function index(props) {
             </>
           )}
         </Playlistbar>
-        {list &&
-          list.map((item, index) => (
-            <PlaylistBox
-              onDragStart={() => dragStart(index)}
-              onDragEnter={() => dragEnter(index)}
-              onDragOver={(e) => e.preventDefault()}
-              onDragEnd={drop}
-              key={index}
-              draggable
-            >
-              <MusicIcon></MusicIcon>
-              <Content>{item}</Content>
-              {checkBox && <CheckCtrl onClick={handleIconClick}>{currentIcon ? <CheckIcon /> : <CheckedIcon />}</CheckCtrl>}
-              <ListOrder></ListOrder>
-            </PlaylistBox>
-          ))}
+        {playlists.map((item, index) => (
+          <PlaylistBox key={item.id}>
+            <MusicIcon></MusicIcon>
+            <PlaylistContent>{item.name}</PlaylistContent>
+            {checkBox && <CheckCtrl onClick={() => handleIconClick(index)}>{checkedItems[index] ? <Checked /> : <CheckBox />}</CheckCtrl>}
+          </PlaylistBox>
+        ))}
       </Container>
     </Background>
   );
