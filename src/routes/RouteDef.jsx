@@ -4,6 +4,7 @@ import PlaylistAll from '../pages/PlaylistAll';
 import EmojiPlaylist from '../pages/EmojiPlaylist';
 import DetailPlaylist from '../pages/DetailPlaylist';
 
+// 메인 화면 경로
 const MainScreens = {
   Main: {
     path: '/',
@@ -22,7 +23,22 @@ const MainScreens = {
     element: <DetailPlaylist />,
   },
 };
-
-export const AppRouteDef = {
+// 로그인 화면 경로
+const LoginScreens = {
+  Mue: {
+    // 새로운 경로 추가
+    path: '/Mue',
+    element: <MueLoginPage />,
+  },
+  EmotionBoard: {
+    // 새로운 경로 추가
+    path: '/EmotionBoard',
+    element: <EmotionBoard />,
+  },
+};
+export const MainRouteDef = {
   ...MainScreens,
+};
+export const LoginRouteDef = {
+  ...LoginScreens,
 };
