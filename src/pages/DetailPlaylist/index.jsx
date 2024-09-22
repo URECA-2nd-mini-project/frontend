@@ -203,10 +203,6 @@ function index(props) {
           </Card>
           <PlayBg>
             <MusicList></MusicList>
-            <MusicList></MusicList>
-            <MusicList></MusicList>
-            <MusicList></MusicList>
-            <MusicList></MusicList>
           </PlayBg>
         </PlayAll>
       </Container>

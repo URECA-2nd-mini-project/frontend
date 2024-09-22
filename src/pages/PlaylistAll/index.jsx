@@ -3,8 +3,6 @@ import styled from 'styled-components';
 import PlayDetailIcon from '../../assets/icons/list-detail.svg?react';
 import PlayListIcon from '../../assets/icons/playlist.svg?react';
 import MusicIcon from '../../assets/icons/musiclist-alt.svg?react';
-import CheckBox from '../../assets/icons/checkbox.svg?react';
-import Checked from '../../assets/icons/checkedbox.svg?react';
 
 const Background = styled.div`
   background: #f9f9f9;
@@ -82,12 +80,30 @@ const TagBg = styled.button`
   cursor: pointer;
 `;
 
-const CheckCtrl = styled.div`
+const DetailePoint = styled(PlayDetailIcon)`
+  cursor: pointer;
+`;
+const CheckCtrl = styled.label`
   display: flex;
   align-items: center;
 `;
-const DetailePoint = styled(PlayDetailIcon)`
+
+const CheckboxStyle = styled.input`
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 1.5px solid var(--gray-medium-color);
+  border-radius: 3px;
   cursor: pointer;
+
+  &:checked {
+    border-color: transparent;
+    background-size: 20px 20px;
+    background-position: 50%;
+    background-repeat: no-repeat;
+    background-image: url('../../assets/icons/checked.svg?react');
+    background-color: var(--secondary-color);
+  }
 `;
 function index(props) {
   const [detailButton, setDetailButton] = useState(true);
@@ -108,8 +124,8 @@ function index(props) {
     },
   ];
 
-  const [checkedItems, setCheckedItems] = useState(Array(Playlists.length).fill(false));
-  const [playlists, setPlaylists] = useState([...Playlists]);
+  const [checkedItems, setCheckedItems] = useState(Array(Playlists.length).fill(false)); //체크박스
+  const [playlists, setPlaylists] = useState([...Playlists]); //플레이리스트
 
   // 플레이리스트 수정
   const handleClick = () => {
@@ -161,7 +177,16 @@ function index(props) {
           <PlaylistBox key={item.id}>
             <MusicIcon></MusicIcon>
             <PlaylistContent>{item.name}</PlaylistContent>
-            {checkBox && <CheckCtrl onClick={() => handleIconClick(index)}>{checkedItems[index] ? <Checked /> : <CheckBox />}</CheckCtrl>}
+            <CheckCtrl htmlFor={index}>
+              {checkBox && (
+                <CheckboxStyle
+                  type="checkbox"
+                  id={index}
+                  checked={checkedItems[index]} // checkedItems 배열을 사용하여 체크 상태 설정
+                  onChange={() => handleIconClick(index)} // 변경 이벤트 처리
+                ></CheckboxStyle>
+              )}
+            </CheckCtrl>
           </PlaylistBox>
         ))}
       </Container>
