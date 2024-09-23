@@ -175,49 +175,56 @@ function index(props) {
     {
       song: '지난 날',
       singer: '유재하',
+      emoji: '#행복',
       id: 1,
     },
     {
       song: '사랑하기 때문에',
       singer: '유재하',
+      emoji: '#행복',
       id: 2,
     },
     {
       song: '내 마음에 비친 내 모습',
       singer: '유재하',
+      emoji: '#사랑',
       id: 3,
     },
     {
       song: '꽃잎이 지고',
       singer: '유재하',
+      emoji: '#사용자정의1',
       id: 4,
     },
     {
       song: '그리움만 쌓이네',
       singer: '유재하',
+      emoji: '#슬픔',
       id: 5,
     },
   ];
 
-  const [newMusicList, setNewMusicList] = useState(selectMusic);
-  const [checkedItems, setCheckedItems] = useState(Array(selectMusic.length).fill(false));
-  const [detailButton, setDetailButton] = useState(true);
-  const [emojiSelect, setEmojiSelect] = useState(null);
-  const [showCheckbox, setShowCheckbox] = useState(false);
+  const [newMusicList, setNewMusicList] = useState(selectMusic); //음악리스트
+  const [checkedItems, setCheckedItems] = useState(Array(selectMusic.length).fill(false)); //체크박스 여부
+  const [detailButton, setDetailButton] = useState(true); //상세보기 버튼
+  const [emojiSelect, setEmojiSelect] = useState(null); // 감정태그
+  const [showCheckbox, setShowCheckbox] = useState(false); //체크박스 존재 여부
+
   //감정 태그 클릭
   const handleEmojiClick = (emoji) => {
     setEmojiSelect(emoji);
+    setCheckedItems(Array(newMusicList.length).fill(false));
   };
-
+  //체크 박스 클릭 -> emojiPlaylist로 props 넘겨줌
   const handleIconClick = (index) => {
     const updatedCheckedItems = [...checkedItems];
     updatedCheckedItems[index] = !updatedCheckedItems[index];
-    setCheckedItems(updatedCheckedItems); // 부모 컴포넌트의 상태 업데이트
+    setCheckedItems(updatedCheckedItems);
   };
 
   //상세보기 버튼 클릭
   const handleClick = () => {
-    setDetailButton(false); //상세보기 버튼 숨김
+    setDetailButton(false);
     setShowCheckbox(true); // 체크박스 표시
   };
 
@@ -228,11 +235,13 @@ function index(props) {
     setCheckedItems(Array(updatedPlaylist.length).fill(false)); // 체크 상태 초기화
   };
 
-  // 음악 수정 후 저장
+  // 음악 수정 후 저장 (저장 기능 구현 필요)
   const handleClickSave = () => {
     setDetailButton(true);
     setShowCheckbox(false);
   };
+
+  // 최신 상태의 음악리스트 상태관리
   useEffect(() => {
     setCheckedItems(Array(newMusicList.length).fill(false)); // newMusicList가 변경될 때 체크 상태 초기화
   }, [newMusicList]);
@@ -265,7 +274,16 @@ function index(props) {
             )}
           </TagBar>
           <PlayBg>
-            <MusicList checkedItems={checkedItems} selectMusic={newMusicList} onIconClick={handleIconClick} showCheckbox={showCheckbox}></MusicList>
+            {newMusicList.filter((music) => music.emoji === emojiSelect).length > 0 ? (
+              <MusicList
+                checkedItems={checkedItems}
+                selectMusic={newMusicList.filter((music) => music.emoji === emojiSelect)}
+                onIconClick={handleIconClick}
+                showCheckbox={showCheckbox}
+              />
+            ) : (
+              <div>🌝 감정에 담긴 음악이 없습니다.</div>
+            )}
           </PlayBg>
         </div>
       </Container>

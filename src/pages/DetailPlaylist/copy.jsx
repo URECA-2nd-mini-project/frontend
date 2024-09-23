@@ -177,38 +177,26 @@ function index(props) {
     },
   ];
   const [detailButton, setDetailButton] = useState(true);
-  const [checkedItems, setCheckedItems] = useState(Array(PlayMusic.length).fill(false));
-  const [newMusicList, setNewMusicList] = useState(PlayMusic);
-  const [showCheckbox, setShowCheckbox] = useState(false);
+  const [checkedItems, setCheckedItems] = useState(Array(PlayMusic.length).fill(false)); //체크박스 체크 여부
+  const [newMusicList, setNewMusicList] = useState(PlayMusic); //음악리스트
+  const [showCheckbox, setShowCheckbox] = useState(false); // 체크박스 존재 여부
 
-  const handleClick = () => {
-    setDetailButton(false);
-    setShowCheckbox(true); // 체크박스 표시
-  };
+  // 플레이리스트 수정
+  const handleClick = () => {};
 
-  const handleClickDelete = () => {
-    const updatedPlaylist = newMusicList.filter((_, index) => !checkedItems[index]);
-    setNewMusicList(updatedPlaylist);
-    setCheckedItems(Array(updatedPlaylist.length).fill(false));
-  };
-
+  //플레이리스트 삭제
+  const handleClickDelete = () => {};
+  // 플레이리스트 저장
   const handleClickSave = () => {
     setDetailButton(true);
-    setShowCheckbox(false);
+    setCheckBox(false);
   };
-
-  const handleIconClick = (index) => {
-    const updatedCheckedItems = [...checkedItems];
-    updatedCheckedItems[index] = !updatedCheckedItems[index];
-    setCheckedItems(updatedCheckedItems);
-  };
-
   return (
     <Background>
       <Container>
         <PlaylistbarBox>
           <Playlistbar>
-            <MusicIcon />
+            <MusicIcon></MusicIcon>
             <PlaylistTitle>드라이브엔 역시 올드 시티팝</PlaylistTitle>
             {detailButton ? (
               <DetailePoint onClick={handleClick}></DetailePoint>
@@ -226,12 +214,13 @@ function index(props) {
           <Card>
             <div>
               <UserImg>
-                <CardImg />
-                <input type="file" style={{ display: 'none' }} />
+                <CardImg></CardImg>
+                <input type="file" style={{ display: 'none' }}></input>
                 <TagBg onClick={null} style={{ display: 'hidden' }}>
                   수정
                 </TagBg>
               </UserImg>
+
               <CardText>
                 🌆🥺🪩😆🚘 <br />
                 퇴근 후 드라이브 노래로 딱인 플리 <br />이 플리 하나면 집 도착!!!
@@ -239,12 +228,7 @@ function index(props) {
             </div>
           </Card>
           <PlayBg>
-            <MusicList
-              checkedItems={checkedItems}
-              selectMusic={newMusicList} // playmusic을 selectMusic으로 변경
-              onIconClick={handleIconClick} // 체크박스 핸들러 추가
-              showCheckbox={showCheckbox}
-            />
+            <MusicList checkedItems={checkedItems} playmusic={newMusicList} showCheckbox={showCheckbox}></MusicList>
           </PlayBg>
         </PlayAll>
       </Container>

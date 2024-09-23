@@ -76,7 +76,7 @@ const Tagbtn = styled.button`
 `;
 
 function MusicList({ checkedItems, selectMusic, onIconClick, showCheckbox }) {
-  const [filteredMusic, setFilteredMusic] = useState(selectMusic); // 초기화
+  const [filteredMusic, setFilteredMusic] = useState(selectMusic); // Emojipage 음악 리스트 초기화
 
   useEffect(() => {
     setFilteredMusic(selectMusic); // props가 변경될 때 업데이트
