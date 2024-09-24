@@ -6,7 +6,7 @@ import DetailPlaylist from '../pages/DetailPlaylist';
 import AccountsMainPage from '../pages/Accounts/AccountsMainPage.jsx';
 import MueLoginPage from '../pages/FirstStep/MueLoginPage.jsx';
 import EmotionBoard from '../pages/SecondStep/EmotionBoard.jsx';
-
+import SearchRes from '../pages/MusicSearchRes/SearchRes.jsx';
 // 메인 화면 경로
 const MainScreens = {
   Main: {
@@ -28,6 +28,10 @@ const MainScreens = {
   Accounts: {
     path: '/accounts',
     element: <AccountsMainPage />,
+  },
+  SearchRes: {
+    path: '/search',
+    element: <SearchRes />,
   },
 };
 // 로그인 화면 경로
