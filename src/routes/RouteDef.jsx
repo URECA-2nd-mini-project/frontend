@@ -13,6 +13,10 @@ const MainScreens = {
     path: '/',
     element: <MainPage />,
   },
+  SearchRes: {
+    path: '/search/:keyword',
+    // element: <SearchRes />,
+  },
   PlaylistAll: {
     path: '/playlist',
     element: <PlaylistAll />,
