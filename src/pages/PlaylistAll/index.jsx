@@ -33,7 +33,9 @@ const PlaylistBox = styled.div`
   margin: 8px 0px;
   padding: 0px 20px;
 `;
-const Playlistbar = styled.div`
+
+//플레이리스트 상단바
+const PlaylistBar = styled.div`
   width: 720px;
   height: 49px;
   display: flex;
@@ -42,6 +44,7 @@ const Playlistbar = styled.div`
   margin-bottom: 10px;
 `;
 
+// 플레이리스트 제목
 const PlaylistTitle = styled.div`
   font-weight: bold;
   flex: 1;
@@ -159,7 +162,7 @@ function index(props) {
   return (
     <Background>
       <Container>
-        <Playlistbar>
+        <PlaylistBar>
           <PlayListIcon></PlayListIcon>
           <PlaylistTitle>모든 플레이리스트</PlaylistTitle>
           {detailButton ? (
@@ -172,7 +175,7 @@ function index(props) {
               </TagBg>
             </>
           )}
-        </Playlistbar>
+        </PlaylistBar>
         {playlists.map((item, index) => (
           <PlaylistBox key={item.id}>
             <MusicIcon></MusicIcon>

@@ -2,7 +2,6 @@ import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
 import MusicIcon from '../../assets/icons/musiclist-alt.svg?react';
 import PlayDetailIcon from '../../assets/icons/list-detail.svg?react';
-import CardImg from '../../assets/icons/card-image.svg?react';
 import MusicList from '../../components/dashboard/MusicList';
 
 const Background = styled.div`
@@ -30,11 +29,12 @@ const PlayAll = styled.div`
 
 const Card = styled.div`
   width: 400px;
+  max-height: 600px;
+
+  overflow: hidden;
   background-color: white;
   border-radius: 8px;
-  border:
-    1px solid,
-    white;
+  border: 1px solid white;
   padding: 20px 5px;
   display: flex;
   align-items: center;
@@ -43,24 +43,66 @@ const Card = styled.div`
   margin: 0px 20px 10px 0px;
 `;
 
-const CardText = styled.div`
+const CardTextInput = styled.textarea`
   border-radius: 8px;
   width: 350px;
-  height: 100px;
+  height: 50px;
   background-color: white;
   padding: 5px;
+  border: 1px solid var(--gray-bright-color);
+  resize: none;
+  font-size: 18px;
+  overflow-y: auto;
 `;
 
+const CardTextOutput = styled.p`
+  white-space: pre-wrap;
+  overflow: break-word;
+  font-size: 20px;
+`;
+const TagBg = styled.button`
+  border-radius: 40px;
+  border:
+    1px solid,
+    var(--gray-medium-color);
+  padding: 10px 2px;
+  margin: 3px;
+  width: 80px;
+  text-align: center;
+  color: var(--gray-medium-color);
+  font-size: 18px;
+  font-weight: bold;
+  background: white;
+  &:hover {
+    background: var(--gray-light-color);
+  }
+  &:active {
+    background: white;
+  }
+  cursor: pointer;
+  position: absolute;
+`;
 const UserImg = styled.div`
   width: 360px;
   height: 360px;
-  background-color: var(--primary-color);
+  border: ${({ uploadImg }) => (uploadImg ? 'none' : '0.5px, solid, var(--gray-bright-color)')};
+  background: transparent;
   border-radius: 8px;
   margin-bottom: 2px;
   display: flex;
   justify-content: center;
   align-items: center;
   position: relative;
+`;
+
+const LoadImg = styled.img`
+  width: 360px;
+  height: 360px;
+  border-radius: 8px;
+  margin-bottom: 2px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `;
 const PlaylistbarBox = styled.div`
   display: flex;
@@ -97,28 +139,6 @@ const PlayBg = styled.div`
   padding: 20px 50px;
 `;
 
-const TagBg = styled.button`
-  border-radius: 40px;
-  border:
-    1px solid,
-    var(--gray-medium-color);
-  padding: 10px 2px;
-  margin: 3px;
-  width: 80px;
-  text-align: center;
-  color: var(--gray-medium-color);
-  font-size: 18px;
-  font-weight: bold;
-  background: white;
-  &:hover {
-    background: var(--gray-light-color);
-  }
-  &:active {
-    background: white;
-  }
-  cursor: pointer;
-  position: absolute;
-`;
 const DetailePoint = styled(PlayDetailIcon)`
   cursor: pointer;
 `;
@@ -142,6 +162,10 @@ const Tagbtn = styled.button`
     background: var(--gray-light-color);
   }
   cursor: pointer;
+`;
+
+const TextBox = styled.div`
+  width: 350px;
 `;
 function index(props) {
   const PlayMusic = [
@@ -176,10 +200,15 @@ function index(props) {
       id: 5,
     },
   ];
-  const [detailButton, setDetailButton] = useState(true);
-  const [checkedItems, setCheckedItems] = useState(Array(PlayMusic.length).fill(false));
-  const [newMusicList, setNewMusicList] = useState(PlayMusic);
-  const [showCheckbox, setShowCheckbox] = useState(false);
+
+  const [detailButton, setDetailButton] = useState(true); // 상세보기 아이콘
+  const [checkedItems, setCheckedItems] = useState(Array(PlayMusic.length).fill(false)); //체크 여부 관리(새로운 음악 리스트 수)
+  const [newMusicList, setNewMusicList] = useState(PlayMusic); // 현재 음악 리스트
+  const [showCheckbox, setShowCheckbox] = useState(false); //체크박스 유무 관리
+  const [uploadImg, setUploadImg] = useState(null);
+  const fileInputRef = useRef(null); // 업로드 이미지
+  const [isEditing, setIsEditing] = useState(true); // 편집 모드 상태
+  const [text, setText] = useState('');
 
   const handleClick = () => {
     setDetailButton(false);
@@ -187,20 +216,53 @@ function index(props) {
   };
 
   const handleClickDelete = () => {
-    const updatedPlaylist = newMusicList.filter((_, index) => !checkedItems[index]);
-    setNewMusicList(updatedPlaylist);
-    setCheckedItems(Array(updatedPlaylist.length).fill(false));
+    const updatedPlaylist = newMusicList.filter((_, index) => !checkedItems[index]); //체크된 음악 삭제 후 반환
+    setNewMusicList(updatedPlaylist); //반환 된 새로운 리스트를 랜더링
+    setCheckedItems(Array(updatedPlaylist.length).fill(false)); //체크 상태 초기화
   };
 
+  // 저장 버튼 클릭시 상세보기 버튼 표시
   const handleClickSave = () => {
     setDetailButton(true);
     setShowCheckbox(false);
   };
 
+  // 체크박스 클릭시 상태 변경
   const handleIconClick = (index) => {
     const updatedCheckedItems = [...checkedItems];
     updatedCheckedItems[index] = !updatedCheckedItems[index];
     setCheckedItems(updatedCheckedItems);
+  };
+
+  //이미지 업로드
+  const handleChangeImg = (e) => {
+    const file = e.target.files[0];
+    const imgUrl = URL.createObjectURL(file);
+    console.log(imgUrl);
+    setUploadImg(imgUrl);
+  };
+
+  //파일 더블클릭시 수정
+  const handleDoubleClick = () => {
+    fileInputRef.current.click(); // 파일 입력 요소 클릭
+  };
+
+  const handleEnter = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+    }
+  };
+  const handleTextChange = (e) => {
+    setText(e.target.value);
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (isEditing) {
+      setIsEditing(false); // 편집 모드 종료
+    } else {
+      setIsEditing(true); // 편집 모드 시작
+    }
   };
 
   return (
@@ -226,22 +288,36 @@ function index(props) {
           <Card>
             <div>
               <UserImg>
-                <CardImg />
-                <input type="file" style={{ display: 'none' }} />
-                <TagBg onClick={null} style={{ display: 'hidden' }}>
-                  수정
-                </TagBg>
+                {uploadImg ? (
+                  <LoadImg src={uploadImg} alt="등록 이미지" onDoubleClick={handleDoubleClick} title="더블클릭시 이미지를 수정할 수 있습니다. 35*35" />
+                ) : (
+                  <TagBg onClick={() => fileInputRef.current.click()}>선택</TagBg>
+                )}
+                <input type="file" onChange={handleChangeImg} ref={fileInputRef} style={{ display: 'none' }} />
               </UserImg>
-              <CardText>
-                🌆🥺🪩😆🚘 <br />
-                퇴근 후 드라이브 노래로 딱인 플리 <br />이 플리 하나면 집 도착!!!
-              </CardText>
+              <TextBox>
+                <form onSubmit={handleSubmit}>
+                  <CardTextOutput>{isEditing ? '' : text}</CardTextOutput>
+                  {isEditing ? (
+                    <CardTextInput
+                      value={text}
+                      onChange={handleTextChange}
+                      onKeyDown={handleEnter}
+                      placeholder="💿 플레이리스트 설명을 작성해보세요!"
+                      rows="4"
+                      cols="40"
+                    />
+                  ) : null}{' '}
+                  <Tagbtn type="submit">{isEditing ? '확인' : '수정'}</Tagbtn>
+                </form>
+              </TextBox>
             </div>
           </Card>
+
           <PlayBg>
             <MusicList
               checkedItems={checkedItems}
-              selectMusic={newMusicList} // playmusic을 selectMusic으로 변경
+              selectMusic={newMusicList} // 음악 목록 전달
               onIconClick={handleIconClick} // 체크박스 핸들러 추가
               showCheckbox={showCheckbox}
             />
