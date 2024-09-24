@@ -1,0 +1,289 @@
+import { useEffect } from 'react';
+import { useState } from 'react';
+import styled from 'styled-components';
+
+const Container = styled.div`
+  position: relative;
+  width: calc(640px - 128px);
+  height: calc(640px - 64px);
+  margin: 8px;
+  padding: 48px 48px;
+  border-radius: 8px;
+  background-color: #fff;
+  box-shadow: 0px 0px 8px 2px var(--box-shadow-color);
+`;
+
+const Header = styled.div`
+  width: 100%;
+  height: 32px;
+  display: flex;
+  flex-direction: row;
+  gap: 32px;
+  border-bottom: 1px solid var(--gray-bright-color);
+`;
+
+const HeaderTab = styled.div`
+  height: 100%;
+  color: ${(props) => (props.selected ? 'var(--gray-dark-color)' : 'var(--gray-light-color)')};
+  border-bottom: ${(props) => (props.selected ? '2px solid var(--gray-dark-color)' : 'none')};
+  font-size: 18px;
+  font-weight: ${(props) => (props.selected ? '600' : '500')};
+`;
+
+const HeadingText = styled.div`
+  color: var(--gray-dark-color);
+  font-size: 20px;
+  font-weight: 600;
+  margin-top: 48px;
+`;
+
+const ChipContainer = styled.div`
+  width: 540px;
+  height: 40px;
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  margin-top: 16px;
+  overflow-x: auto;
+`;
+
+const Chip = styled.div`
+  display: inline-flex;
+  padding: 8px 12px;
+  border-radius: 40px;
+  margin: auto 0;
+  color: ${(props) => (props.selected ? 'var(--secondary-color)' : 'var(--gray-medium-color)')};
+  background-color: ${(props) => (props.selected ? 'var(--secondary-light-color)' : 'var(--gray-bright-color)')};
+  font-size: 16px;
+  font-weight: ${(props) => (props.selected ? '600' : '500')};
+  white-space: nowrap;
+`;
+
+const InputChip = styled.input`
+  width: 72px;
+  padding: 8px 16px;
+  margin: auto 0;
+  border-radius: 40px;
+  color: var(--gray-dark-color);
+  background-color: var(--gray-bright-color);
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  outline: none;
+`;
+
+const EmotionTextArea = styled.textarea`
+  width: 460px;
+  height: 160px;
+  padding: 24px 24px;
+  margin-top: 20px;
+  background-color: var(--gray-bright-color);
+  color: var(--gray-dark-color);
+  border-radius: 8px;
+  font-family: 'Pretendard';
+  font-size: 16px;
+  font-weight: 500;
+  border: none;
+  outline: none;
+`;
+
+const SaveBtn = styled.button`
+  position: absolute;
+  left: 52px;
+  bottom: 40px;
+  width: 500px;
+  height: 72px;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--secondary-color);
+  border: none;
+  border-radius: 80px;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 700;
+`;
+
+const MyEmotionLogContainer = styled.div`
+  height: 540px;
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+`;
+
+const MyEmotionLogCard = styled.div`
+  width: calc(540px - 84px);
+  padding: 32px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  border-radius: 8px;
+  background-color: var(--background-color);
+`;
+
+const MyEmotionLogText = styled.div`
+  color: var(--gray-dark-color);
+  font-size: 18px;
+  font-weight: 500;
+`;
+
+const MyEmotionLogDateText = styled.div`
+  color: var(--gray-light-color);
+  font-size: 16px;
+  font-weight: 400;
+`;
+// NOTE) 감정 Chip 더미데이터, API 구현 후 수정 예정
+const dummyChipData = ['기쁨', '슬픔', '즐거움', '신남', '우울'];
+
+const dummyEmotionsData = [
+  {
+    tag: '기쁨',
+    content: '안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕방가방가하이루방가방가하이루방가',
+    createdAt: '2024.09.24 11:54',
+  },
+  {
+    tag: '기쁨',
+    content: '안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕',
+    createdAt: '2024.09.24 11:54',
+  },
+  {
+    tag: '기쁨',
+    content: '안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕',
+    createdAt: '2024.09.24 11:54',
+  },
+  {
+    tag: '기쁨',
+    content: '안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕',
+    createdAt: '2024.09.24 11:54',
+  },
+  {
+    tag: '기쁨',
+    content: '안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕',
+    createdAt: '2024.09.24 11:54',
+  },
+  {
+    tag: '기쁨',
+    content: '안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕',
+    createdAt: '2024.09.24 11:54',
+  },
+  {
+    tag: '기쁨',
+    content: '안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕',
+    createdAt: '2024.09.24 11:54',
+  },
+  {
+    tag: '기쁨',
+    content: '안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕',
+    createdAt: '2024.09.24 11:54',
+  },
+];
+
+const AddEmotionCard = () => {
+  const [selectedTab, setSelectedTab] = useState(0);
+  const [selectedEmotion, setSelectedEmotion] = useState(0);
+  const [emotions, setEmotions] = useState([]);
+  const [newEmotionTag, setNewEmotionTag] = useState('');
+  const [emotionInputText, setEmotionInpuText] = useState('');
+
+  // Tab이 클릭될 때 실행되는 이벤트 핸들러
+  const handleTabClick = (tabNo) => {
+    if (selectedTab === tabNo) {
+      return;
+    } else {
+      setSelectedTab(tabNo);
+    }
+  };
+
+  // Chip이 클릭될 때 실행되는 이벤트 핸들러
+  const handleChipClick = (chipNo) => {
+    if (selectedEmotion === chipNo) {
+      // 이미 선택된 Chip일 경우 return
+      return;
+    } else {
+      // 다른 Chip을 선택한 경우 해당 Chip 번호를 저장
+      setSelectedEmotion(chipNo);
+    }
+  };
+
+  // Card Input의 값을 state에 저장하는 이벤트 핸들러
+  const handleInputChipChange = (event) => {
+    setNewEmotionTag(event.target.value);
+  };
+
+  // Enter 입력 시 감정을 추가하는 이벤트 핸들러
+  const handleKeyPress = (event) => {
+    if (event.key === 'Enter') {
+      // 이미 등록된 감정일 경우 alert창을 띄우고 등록 예외 처리
+      if (emotions.find((item) => item === newEmotionTag)) {
+        window.alert('이미 등록된 감정이에요.');
+        return;
+      }
+
+      // 새로운 감정일 경우 emotionTag state에 추가
+      setEmotions((prevEmotions) => [newEmotionTag, ...prevEmotions]);
+      setNewEmotionTag('');
+    }
+  };
+
+  // Text Area의 값을 state에 저장하는 이벤트 핸들러
+  const handleTextAreaChange = (event) => {
+    setEmotionInpuText(event.target.value);
+  };
+
+  // NOTE) 작성한 감정 태그 및 내용을 서버에 저장하는 함수, 통신 구현 후 수정 필요
+  const saveEmotionLog = () => {
+    console.log(emotions[selectedEmotion]);
+    console.log(emotionInputText);
+  };
+
+  useEffect(() => {
+    setEmotions(dummyChipData);
+  }, []);
+
+  return (
+    <Container>
+      <Header>
+        <HeaderTab onClick={() => handleTabClick(0)} selected={selectedTab === 0}>
+          감정 기록하기
+        </HeaderTab>
+        <HeaderTab onClick={() => handleTabClick(1)} selected={selectedTab === 1}>
+          내 감정
+        </HeaderTab>
+      </Header>
+
+      {!selectedTab ? (
+        <div>
+          <HeadingText>감정 태그 선택하기</HeadingText>
+          <ChipContainer>
+            <InputChip placeholder="+ 추가하기" value={newEmotionTag} onChange={handleInputChipChange} onKeyPress={handleKeyPress}></InputChip>
+            {emotions.map((item, index) => (
+              <Chip key={index} onClick={() => handleChipClick(index)} selected={selectedEmotion === index}>
+                {`# ${item}`}
+              </Chip>
+            ))}
+          </ChipContainer>
+          <HeadingText>감정 기록하기</HeadingText>
+          <EmotionTextArea placeholder="음악을 들으며 느낀 감정을 기록해보세요." value={emotionInputText} onChange={handleTextAreaChange}></EmotionTextArea>
+          <SaveBtn onClick={saveEmotionLog}>저장하기</SaveBtn>
+        </div>
+      ) : (
+        <MyEmotionLogContainer>
+          {dummyEmotionsData.map((item, index) => (
+            <MyEmotionLogCard key={index}>
+              <div>
+                <Chip selected={true}>{`# ${item.tag}`}</Chip>
+              </div>
+              <MyEmotionLogText>{item.content}</MyEmotionLogText>
+              <MyEmotionLogDateText>{item.createdAt}</MyEmotionLogDateText>
+            </MyEmotionLogCard>
+          ))}
+        </MyEmotionLogContainer>
+      )}
+    </Container>
+  );
+};
+
+export default AddEmotionCard;

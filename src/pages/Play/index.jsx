@@ -1,24 +1,26 @@
 import styled from 'styled-components';
-import MusicItem from '../../components/dashboard/MusicItem';
 import MusicMenu from '../../assets/icons/menu-music.svg?react';
 import MusicAlt from '../../assets/icons/music-alt.svg?react';
+import { useState } from 'react';
+import AddPlaylistCard from '../../components/play/AddPlaylistCard';
+import AddEmotionCard from '../../components/play/AddEmotionCard';
 
 const Container = styled.div`
   width: calc(100% - 200px);
   height: 100%;
-  padding: 0px 100px 0px 200px;
+  padding: 0px 200px 160px 200px;
   display: flex;
   flex-direction: row;
   overflow-y: auto;
 `;
 
 const MusicInfo = styled.div`
-  width: 380px;
-  height: calc(640px - 96px);
+  width: 360px;
+  height: calc(640px - 48px);
   margin: 8px;
   padding: 40px 48px;
   border-radius: 8px;
-  color: fff;
+  background-color: #fff;
   box-shadow: 0px 0px 8px 2px var(--box-shadow-color);
 `;
 
@@ -44,16 +46,28 @@ const ArtistText = styled.div`
 `;
 
 const MusicLyrics = styled.div`
-  width: calc(640px - 128px);
-  height: calc(640px - 160px);
+  width: calc(640px - 100px);
+  height: calc(640px - 96px);
+  margin: 8px;
   padding: 64px 80px;
+  border-radius: 8px;
+  background-color: #fff;
+  box-shadow: 0px 0px 8px 2px var(--box-shadow-color);
   overflow-y: auto;
-  font-size: 32px;
+  font-size: 30px;
   font-weight: 600;
-  color: var(--gray-dark-color);
+  color: var(--gray-medium-color);
+  white-space: pre-wrap; // 이스케이프 문자(\n) 허용
 `;
 
-const ActionBtn = styled.div`
+const BtnContainer = styled.div`
+  margin-top: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+`;
+
+const ActionBtn = styled.button`
   width: 240px;
   height: 40px;
   display: flex;
@@ -61,29 +75,81 @@ const ActionBtn = styled.div`
   align-items: center;
   gap: 16px;
   font-size: 18px;
-  font-weight: 500;
-  color: var(--gray-light-color);
+  font-weight: ${(props) => (props.selected ? '600' : '500')};
+  background-color: #fff;
+  border: none;
+  color: ${(props) => (props.selected ? 'var(--secondary-color)' : 'var(--gray-medium-color)')};
+`;
+
+const LyricsDummyData = `
+  숨가쁘게 흘러가는\n
+  여기 도시의 소음 속에서\n
+  빛을 잃어가는 모든것\n
+  놓치긴 아쉬워\n
+  잠깐 동안 멈춰서서\n
+  머리 위 하늘을 봐\n
+  우리 지친 마음 조금은\n
+  쉴 수 있게 할거야\n
+  한 걸음 더 천천히 간다해도\n
+  그리 늦은 것은 아냐\n
+  이 세상도 사람들 얘기처럼\n
+  복잡하지 만은 않아\n
+  잠깐 동안 멈춰서서\n
+  머리 위 하늘을 봐\n
+  우리 지친 마음 조금은\n
+  쉴 수 있게 할거야\n
+  한 걸음 더 천천히 간다해도\n
+  그리 늦은 것은 아냐\n
+  이 세상도 사람들 얘기처럼\n
+  복잡하지 만은 않아\n
+  한 걸음 더 천천히 간다해도\n
+  그리 늦은 것은 아냐\n
+  이 세상도 사람들 얘기처럼\n
+  복잡하지 만은 않아
 `;
 
 const Index = () => {
+  const [selected, setSelected] = useState('lyrics');
+
+  const handleActionButtionClick = (event) => {
+    const value = event.currentTarget.dataset.value;
+
+    if (selected === value) {
+      setSelected('lyrics');
+    } else {
+      setSelected(value);
+    }
+  };
+
+  const Card = () => {
+    switch (selected) {
+      case 'lyrics':
+        return <MusicLyrics>{LyricsDummyData}</MusicLyrics>;
+      case 'add-playlist':
+        return <AddPlaylistCard></AddPlaylistCard>;
+      case 'add-emotion':
+        return <AddEmotionCard></AddEmotionCard>;
+    }
+  };
+
   return (
     <Container>
       <MusicInfo>
         <ThumbnailImg src={'https://img.youtube.com/vi/b4AuXkbe288/maxresdefault.jpg'}></ThumbnailImg>
         <TitleText>한걸음 더</TitleText>
         <ArtistText>윤상</ArtistText>
-        <div>
-          <ActionBtn>
-            <MusicMenu></MusicMenu>
+        <BtnContainer>
+          <ActionBtn data-value="add-playlist" onClick={handleActionButtionClick} selected={selected === 'add-playlist'}>
+            <MusicMenu fill={selected === 'add-playlist' ? 'var(--secondary-color)' : 'var(--gray-medium-color)'}></MusicMenu>
             <div>플레이리스트에 저장하기</div>
           </ActionBtn>
-          <ActionBtn>
-            <MusicAlt></MusicAlt>
+          <ActionBtn data-value="add-emotion" onClick={handleActionButtionClick} selected={selected === 'add-emotion'}>
+            <MusicAlt fill={selected === 'add-emotion' ? 'var(--secondary-color)' : 'var(--gray-medium-color)'}></MusicAlt>
             <div>감정 기록하기</div>
           </ActionBtn>
-        </div>
+        </BtnContainer>
       </MusicInfo>
-      <MusicLyrics></MusicLyrics>
+      <Card></Card>
     </Container>
   );
 };
