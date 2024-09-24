@@ -43,6 +43,8 @@ const TagBg = styled.button`
     font-weight: bold;
   }
 `;
+
+//선택된 감정 태그
 const SelectTagBg = styled.div`
   color: var(--secondary-color);
   background-color: #def2ec;
@@ -80,6 +82,7 @@ const Tagbtn = styled.button`
   cursor: pointer;
 `;
 
+//상세보기 아이콘
 const DetailePoint = styled(PlayDetailIcon)`
   cursor: pointer;
 `;
@@ -98,6 +101,7 @@ const EmojiBox = styled.div`
   flex-wrap: wrap;
 `;
 
+// 태그 안내 메세지
 const TagMsg = styled.div`
   font-weight: bold;
   margin-bottom: 20px;
@@ -107,6 +111,7 @@ const TagMsg = styled.div`
   font-size: 20px;
 `;
 
+// 상단바
 const TagBar = styled.div`
   height: 49px;
   display: flex;
@@ -116,6 +121,7 @@ const TagBar = styled.div`
   margin-bottom: 10px;
 `;
 
+//플레이리스트 배경
 const PlayBg = styled.div`
   width: 600px;
   background-color: var(--gray-bright-color);
@@ -127,7 +133,7 @@ const PlayBg = styled.div`
 `;
 
 function index(props) {
-  //한 줄에 최대 5개의 태그 배치
+  //감정 태그 배열
   const selectEmoji = [
     {
       emoji: '#행복',
@@ -171,6 +177,7 @@ function index(props) {
     },
   ];
 
+  // user 플레이리스트
   const selectMusic = [
     {
       song: '지난 날',
@@ -215,6 +222,7 @@ function index(props) {
     setEmojiSelect(emoji);
     setCheckedItems(Array(newMusicList.length).fill(false));
   };
+
   //체크 박스 클릭 -> emojiPlaylist로 props 넘겨줌
   const handleIconClick = (index) => {
     const updatedCheckedItems = [...checkedItems];
@@ -232,7 +240,7 @@ function index(props) {
   const handleClickDelete = () => {
     const updatedPlaylist = newMusicList.filter((_, index) => !checkedItems[index]);
     setNewMusicList(updatedPlaylist); // 새로운 플레이리스트 상태 업데이트
-    setCheckedItems(Array(updatedPlaylist.length).fill(false)); // 체크 상태 초기화
+    setCheckedItems(Array(updatedPlaylist.length).fill(false));
   };
 
   // 음악 수정 후 저장 (저장 기능 구현 필요)
@@ -243,7 +251,7 @@ function index(props) {
 
   // 최신 상태의 음악리스트 상태관리
   useEffect(() => {
-    setCheckedItems(Array(newMusicList.length).fill(false)); // newMusicList가 변경될 때 체크 상태 초기화
+    setCheckedItems(Array(newMusicList.length).fill(false)); // newMusicList가 변경될 때 체크 상태 반영
   }, [newMusicList]);
 
   return (

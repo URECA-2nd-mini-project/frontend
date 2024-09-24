@@ -20,6 +20,7 @@ const Container = styled.div`
   margin-top: 20px;
 `;
 
+//card, 플레이리스트 전체
 const PlayAll = styled.div`
   display: flex;
   display-derection: row;
@@ -30,7 +31,6 @@ const PlayAll = styled.div`
 const Card = styled.div`
   width: 400px;
   max-height: 600px;
-
   overflow: hidden;
   background-color: white;
   border-radius: 8px;
@@ -43,6 +43,7 @@ const Card = styled.div`
   margin: 0px 20px 10px 0px;
 `;
 
+//text 입력
 const CardTextInput = styled.textarea`
   border-radius: 8px;
   width: 350px;
@@ -55,11 +56,14 @@ const CardTextInput = styled.textarea`
   overflow-y: auto;
 `;
 
+//text 출력
 const CardTextOutput = styled.p`
   white-space: pre-wrap;
   overflow: break-word;
   font-size: 20px;
 `;
+
+//태그 컴포넌트
 const TagBg = styled.button`
   border-radius: 40px;
   border:
@@ -82,6 +86,8 @@ const TagBg = styled.button`
   cursor: pointer;
   position: absolute;
 `;
+
+//이미지 부분
 const UserImg = styled.div`
   width: 360px;
   height: 360px;
@@ -95,6 +101,7 @@ const UserImg = styled.div`
   position: relative;
 `;
 
+// user 이미지 업로드
 const LoadImg = styled.img`
   width: 360px;
   height: 360px;
@@ -104,6 +111,8 @@ const LoadImg = styled.img`
   justify-content: center;
   align-items: center;
 `;
+
+//플레이리스트 상단바 전체
 const PlaylistbarBox = styled.div`
   display: flex;
   align-items: center;
@@ -111,6 +120,7 @@ const PlaylistbarBox = styled.div`
   width: 1140px;
 `;
 
+//플레이리스트 상단바
 const Playlistbar = styled.div`
   height: 49px;
   width: 680px;
@@ -121,6 +131,7 @@ const Playlistbar = styled.div`
   margin-buttom: 10px;
 `;
 
+// 플레이리스트 title
 const PlaylistTitle = styled.div`
   font-weight: bold;
   flex: 1;
@@ -129,6 +140,7 @@ const PlaylistTitle = styled.div`
   font-size: 20px;
 `;
 
+//플레이리스트 배경
 const PlayBg = styled.div`
   width: 600px;
   background-color: var(--gray-bright-color);
@@ -139,9 +151,12 @@ const PlayBg = styled.div`
   padding: 20px 50px;
 `;
 
+// 상세보기 버튼
 const DetailePoint = styled(PlayDetailIcon)`
   cursor: pointer;
 `;
+
+// 수정, 삭제 버튼
 const Tagbtn = styled.button`
   border-radius: 40px;
   border:
@@ -164,9 +179,11 @@ const Tagbtn = styled.button`
   cursor: pointer;
 `;
 
+// text입력 전체
 const TextBox = styled.div`
   width: 350px;
 `;
+
 function index(props) {
   const PlayMusic = [
     {
@@ -205,10 +222,10 @@ function index(props) {
   const [checkedItems, setCheckedItems] = useState(Array(PlayMusic.length).fill(false)); //체크 여부 관리(새로운 음악 리스트 수)
   const [newMusicList, setNewMusicList] = useState(PlayMusic); // 현재 음악 리스트
   const [showCheckbox, setShowCheckbox] = useState(false); //체크박스 유무 관리
-  const [uploadImg, setUploadImg] = useState(null);
+  const [uploadImg, setUploadImg] = useState(null); //등록된 이미지
   const fileInputRef = useRef(null); // 업로드 이미지
   const [isEditing, setIsEditing] = useState(true); // 편집 모드 상태
-  const [text, setText] = useState('');
+  const [text, setText] = useState(''); //입력한 텍스트
 
   const handleClick = () => {
     setDetailButton(false);
@@ -229,15 +246,15 @@ function index(props) {
 
   // 체크박스 클릭시 상태 변경
   const handleIconClick = (index) => {
-    const updatedCheckedItems = [...checkedItems];
-    updatedCheckedItems[index] = !updatedCheckedItems[index];
-    setCheckedItems(updatedCheckedItems);
+    const updatedChecked = [...checkedItems];
+    updatedChecked[index] = !updatedChecked[index];
+    setCheckedItems(updatedChecked);
   };
 
   //이미지 업로드
   const handleChangeImg = (e) => {
     const file = e.target.files[0];
-    const imgUrl = URL.createObjectURL(file);
+    const imgUrl = URL.createObjectURL(file); //파일 주소 변환
     console.log(imgUrl);
     setUploadImg(imgUrl);
   };
@@ -247,11 +264,7 @@ function index(props) {
     fileInputRef.current.click(); // 파일 입력 요소 클릭
   };
 
-  const handleEnter = (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-    }
-  };
+  //텍스트 화면에 표시
   const handleTextChange = (e) => {
     setText(e.target.value);
   };
@@ -297,16 +310,9 @@ function index(props) {
               </UserImg>
               <TextBox>
                 <form onSubmit={handleSubmit}>
-                  <CardTextOutput>{isEditing ? '' : text}</CardTextOutput>
+                  <CardTextOutput>{isEditing ? '' : text}</CardTextOutput> {/*작성 후 화면에 표시*/}
                   {isEditing ? (
-                    <CardTextInput
-                      value={text}
-                      onChange={handleTextChange}
-                      onKeyDown={handleEnter}
-                      placeholder="💿 플레이리스트 설명을 작성해보세요!"
-                      rows="4"
-                      cols="40"
-                    />
+                    <CardTextInput value={text} onChange={handleTextChange} placeholder="💿 플레이리스트 설명을 작성해보세요!" rows="4" cols="40" />
                   ) : null}{' '}
                   <Tagbtn type="submit">{isEditing ? '확인' : '수정'}</Tagbtn>
                 </form>
@@ -316,10 +322,10 @@ function index(props) {
 
           <PlayBg>
             <MusicList
-              checkedItems={checkedItems}
+              checkedItems={checkedItems} //체크 상태 전달
               selectMusic={newMusicList} // 음악 목록 전달
               onIconClick={handleIconClick} // 체크박스 핸들러 추가
-              showCheckbox={showCheckbox}
+              showCheckbox={showCheckbox} //체크 박스 표시 상태 전달
             />
           </PlayBg>
         </PlayAll>

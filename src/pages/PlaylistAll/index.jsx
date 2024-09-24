@@ -83,6 +83,7 @@ const TagBg = styled.button`
   cursor: pointer;
 `;
 
+//상세보기 버튼
 const DetailePoint = styled(PlayDetailIcon)`
   cursor: pointer;
 `;
@@ -101,16 +102,17 @@ const CheckboxStyle = styled.input`
 
   &:checked {
     border-color: transparent;
-    background-size: 20px 20px;
+    ₩  background-size: 20px 20px;
     background-position: 50%;
     background-repeat: no-repeat;
     background-image: url('../../assets/icons/checked.svg?react');
     background-color: var(--secondary-color);
   }
 `;
+
 function index(props) {
-  const [detailButton, setDetailButton] = useState(true);
-  const [checkBox, setCheckBox] = useState(false);
+  const [detailButton, setDetailButton] = useState(true); //상세보기 버튼
+  const [checkBox, setCheckBox] = useState(false); //체크박스 유무
 
   const Playlists = [
     {
@@ -127,7 +129,7 @@ function index(props) {
     },
   ];
 
-  const [checkedItems, setCheckedItems] = useState(Array(Playlists.length).fill(false)); //체크박스
+  const [checkedItems, setCheckedItems] = useState(Array(Playlists.length).fill(false)); //체크박스 체크 여부
   const [playlists, setPlaylists] = useState([...Playlists]); //플레이리스트
 
   // 플레이리스트 수정
@@ -154,7 +156,7 @@ function index(props) {
     setCheckBox((prev) => !prev);
   };
 
-  // 플레이리스트
+  // 체크 여부 이벤트
   const handleIconClick = (index) => {
     setCheckedItems((prev) => prev.map((item, i) => (i === index ? !item : item)));
   };
@@ -165,7 +167,7 @@ function index(props) {
         <PlaylistBar>
           <PlayListIcon></PlayListIcon>
           <PlaylistTitle>모든 플레이리스트</PlaylistTitle>
-          {detailButton ? (
+          {detailButton ? ( //상세버튼 클릭시 삭제, 저장버튼 표시
             <DetailePoint onClick={handleClick}></DetailePoint>
           ) : (
             <>
@@ -186,7 +188,7 @@ function index(props) {
                   type="checkbox"
                   id={index}
                   checked={checkedItems[index]} // checkedItems 배열을 사용하여 체크 상태 설정
-                  onChange={() => handleIconClick(index)} // 변경 이벤트 처리
+                  onChange={() => handleIconClick(index)} // 체크박스 클릭시 이벤트 발생
                 ></CheckboxStyle>
               )}
             </CheckCtrl>

@@ -52,28 +52,6 @@ const CheckboxStyle = styled.input`
     background-color: var(--secondary-color);
   }
 `;
-//태그 버튼(삭제, 저장)
-const Tagbtn = styled.button`
-  border-radius: 40px;
-  border:
-    1px solid,
-    var(--gray-medium-color);
-  padding: 10px 2px;
-  margin-left: 5px;
-  width: 80px;
-  text-align: center;
-  color: var(--gray-medium-color);
-  font-size: 18px;
-  font-weight: bold;
-  background: none;
-  &:hover {
-    background: white;
-  }
-  &:active {
-    background: var(--gray-light-color);
-  }
-  cursor: pointer;
-`;
 
 function MusicList({ checkedItems, selectMusic, onIconClick, showCheckbox }) {
   const [filteredMusic, setFilteredMusic] = useState(selectMusic); // Emojipage 음악 리스트 초기화
@@ -98,7 +76,7 @@ function MusicList({ checkedItems, selectMusic, onIconClick, showCheckbox }) {
               <CheckboxStyle
                 type="checkbox"
                 id={index}
-                checked={checkedItems[index] !== undefined ? checkedItems[index] : false} // 체크 상태 설정
+                checked={checkedItems[index] !== undefined ? checkedItems[index] : false} // 체크 상태 설정 (undefined -> false)
                 onChange={() => onIconClick(index)} // 변경 이벤트 처리
               />
             </CheckCtrl>
