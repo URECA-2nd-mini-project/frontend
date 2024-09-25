@@ -7,7 +7,7 @@ import DetailPlaylist from '../pages/DetailPlaylist';
 import AccountsMainPage from '../pages/Accounts/AccountsMainPage.jsx';
 import MueLoginPage from '../pages/FirstStep/MueLoginPage.jsx';
 import EmotionBoard from '../pages/SecondStep/EmotionBoard.jsx';
-
+import SearchRes from '../pages/MusicSearchRes/SearchRes.jsx';
 // 메인 화면 경로
 const MainScreens = {
   Main: {
@@ -16,7 +16,7 @@ const MainScreens = {
   },
   SearchRes: {
     path: '/search/:keyword',
-    // element: <SearchRes />,
+    element: <SearchRes />,
   },
   Play: {
     path: '/musicId',
