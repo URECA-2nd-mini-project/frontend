@@ -1,5 +1,6 @@
 // Router 경로 정의
 import MainPage from '../pages/Main';
+import PlayPage from '../pages/Play';
 import PlaylistAll from '../pages/PlaylistAll';
 import EmojiPlaylist from '../pages/EmojiPlaylist';
 import DetailPlaylist from '../pages/DetailPlaylist';
@@ -16,6 +17,10 @@ const MainScreens = {
   SearchRes: {
     path: '/search/:keyword',
     element: <SearchRes />,
+  },
+  Play: {
+    path: '/musicId',
+    element: <PlayPage />,
   },
   PlaylistAll: {
     path: '/playlist',
@@ -34,6 +39,7 @@ const MainScreens = {
     element: <AccountsMainPage />,
   },
 };
+
 // 로그인 화면 경로
 const LoginScreens = {
   Mue: {

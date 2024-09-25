@@ -3,8 +3,6 @@ import styled from 'styled-components';
 import PlayDetailIcon from '../../assets/icons/list-detail.svg?react';
 import PlayListIcon from '../../assets/icons/playlist.svg?react';
 import MusicIcon from '../../assets/icons/musiclist-alt.svg?react';
-import CheckBox from '../../assets/icons/checkbox.svg?react';
-import Checked from '../../assets/icons/checkedbox.svg?react';
 
 const Background = styled.div`
   background: #f9f9f9;
@@ -35,7 +33,9 @@ const PlaylistBox = styled.div`
   margin: 8px 0px;
   padding: 0px 20px;
 `;
-const Playlistbar = styled.div`
+
+//플레이리스트 상단바
+const PlaylistBar = styled.div`
   width: 720px;
   height: 49px;
   display: flex;
@@ -44,6 +44,7 @@ const Playlistbar = styled.div`
   margin-bottom: 10px;
 `;
 
+// 플레이리스트 제목
 const PlaylistTitle = styled.div`
   font-weight: bold;
   flex: 1;
@@ -82,16 +83,36 @@ const TagBg = styled.button`
   cursor: pointer;
 `;
 
-const CheckCtrl = styled.div`
-  display: flex;
-  align-items: center;
-`;
+//상세보기 버튼
 const DetailePoint = styled(PlayDetailIcon)`
   cursor: pointer;
 `;
+const CheckCtrl = styled.label`
+  display: flex;
+  align-items: center;
+`;
+
+const CheckboxStyle = styled.input`
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 1.5px solid var(--gray-medium-color);
+  border-radius: 3px;
+  cursor: pointer;
+
+  &:checked {
+    border-color: transparent;
+    ₩  background-size: 20px 20px;
+    background-position: 50%;
+    background-repeat: no-repeat;
+    background-image: url('../../assets/icons/checked.svg?react');
+    background-color: var(--secondary-color);
+  }
+`;
+
 function index(props) {
-  const [detailButton, setDetailButton] = useState(true);
-  const [checkBox, setCheckBox] = useState(false);
+  const [detailButton, setDetailButton] = useState(true); //상세보기 버튼
+  const [checkBox, setCheckBox] = useState(false); //체크박스 유무
 
   const Playlists = [
     {
@@ -108,8 +129,8 @@ function index(props) {
     },
   ];
 
-  const [checkedItems, setCheckedItems] = useState(Array(Playlists.length).fill(false));
-  const [playlists, setPlaylists] = useState([...Playlists]);
+  const [checkedItems, setCheckedItems] = useState(Array(Playlists.length).fill(false)); //체크박스 체크 여부
+  const [playlists, setPlaylists] = useState([...Playlists]); //플레이리스트
 
   // 플레이리스트 수정
   const handleClick = () => {
@@ -135,7 +156,7 @@ function index(props) {
     setCheckBox((prev) => !prev);
   };
 
-  // 플레이리스트
+  // 체크 여부 이벤트
   const handleIconClick = (index) => {
     setCheckedItems((prev) => prev.map((item, i) => (i === index ? !item : item)));
   };
@@ -143,10 +164,10 @@ function index(props) {
   return (
     <Background>
       <Container>
-        <Playlistbar>
+        <PlaylistBar>
           <PlayListIcon></PlayListIcon>
           <PlaylistTitle>모든 플레이리스트</PlaylistTitle>
-          {detailButton ? (
+          {detailButton ? ( //상세버튼 클릭시 삭제, 저장버튼 표시
             <DetailePoint onClick={handleClick}></DetailePoint>
           ) : (
             <>
@@ -156,12 +177,21 @@ function index(props) {
               </TagBg>
             </>
           )}
-        </Playlistbar>
+        </PlaylistBar>
         {playlists.map((item, index) => (
           <PlaylistBox key={item.id}>
             <MusicIcon></MusicIcon>
             <PlaylistContent>{item.name}</PlaylistContent>
-            {checkBox && <CheckCtrl onClick={() => handleIconClick(index)}>{checkedItems[index] ? <Checked /> : <CheckBox />}</CheckCtrl>}
+            <CheckCtrl htmlFor={index}>
+              {checkBox && (
+                <CheckboxStyle
+                  type="checkbox"
+                  id={index}
+                  checked={checkedItems[index]} // checkedItems 배열을 사용하여 체크 상태 설정
+                  onChange={() => handleIconClick(index)} // 체크박스 클릭시 이벤트 발생
+                ></CheckboxStyle>
+              )}
+            </CheckCtrl>
           </PlaylistBox>
         ))}
       </Container>
