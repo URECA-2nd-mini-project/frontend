@@ -13,6 +13,10 @@ const MainScreens = {
     path: '/',
     element: <MainPage />,
   },
+  SearchRes: {
+    path: '/search/:keyword',
+    element: <SearchRes />,
+  },
   PlaylistAll: {
     path: '/playlist',
     element: <PlaylistAll />,
@@ -28,10 +32,6 @@ const MainScreens = {
   Accounts: {
     path: '/accounts',
     element: <AccountsMainPage />,
-  },
-  SearchRes: {
-    path: '/search',
-    element: <SearchRes />,
   },
 };
 // 로그인 화면 경로
