@@ -7,6 +7,8 @@ import Pause from '../assets/icons/pause.svg?react';
 import Next from '../assets/icons/play-next.svg?react';
 import Prev from '../assets/icons/play-prev.svg?react';
 import { useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
+import { setIndex } from '../redux/musicSlice';
 
 const Container = styled.div`
   width: calc(100% - 128px);
@@ -112,15 +114,22 @@ const ButtonContainer = styled.div`
   gap: 48px;
 `;
 
+/* TODO
+ * playbar, store 로직 수정 (객체 -> 리스트, 인덱스 저장)
+ * Navbar에 페이지 간 navigate 추가
+ * search page에 dispatch로 store 연결 + API 호출부 구현
+ */
+
 const PlayBar = () => {
   const [played, setPlayed] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [seeking, setSeeking] = useState(false);
   const [duration, setDuration] = useState(null);
   const playerRef = useRef(null);
-  const { id, title, artist } = useSelector((state) => state.music);
+  const [music, setMusic] = useState({ musicId: null, artist: null, title: null });
+  const dispatch = useDispatch();
+  const { playlist, index } = useSelector((state) => state.music);
 
-  console.log(id, title, artist);
   // 재생, 정지 상태를 설정
   // TODO) spacebar 입력 시 재생/정지되게 하는 eventhandler 추가
   const handleIsPlaying = () => {
@@ -155,6 +164,20 @@ const PlayBar = () => {
     }
   };
 
+  const handleClickNext = () => {
+    dispatch(setIndex(index + 1));
+  };
+
+  const handleClickPrev = () => {
+    dispatch(setIndex(index - 1));
+  };
+
+  // 화면 렌더링 시 실행
+  useEffect(() => {
+    // 플레이리스트에 재생할 곡 정보 불러오기
+    setMusic(playlist[index]);
+  }, []);
+
   // duration 값이 설정된 후 화면 렌더링
   useEffect(() => {
     if (duration) {
@@ -163,21 +186,24 @@ const PlayBar = () => {
   }, [duration]);
 
   // played 값이 변경될 때마다 화면 렌더링
-  useEffect(() => {}, [played, id]);
+  useEffect(() => {}, [played]);
+
+  // index 값이 변경될 때마다 현재 재생 중인 음악 정보를 업데이트
+  useEffect(() => {}, [played, index]);
 
   return (
     <Container>
-      <ThumbnailImg key={id} src={`https://img.youtube.com/vi/${id}/maxresdefault.jpg`} referrerPolicy="no-referrer"></ThumbnailImg>
+      <ThumbnailImg key={music.musicId} src={`https://img.youtube.com/vi/${music.musicId}/maxresdefault.jpg`} referrerPolicy="no-referrer"></ThumbnailImg>
       <TitleContainer>
-        <TitleText>{title}</TitleText>
-        <ArtistText>{artist}</ArtistText>
+        <TitleText>{music.title}</TitleText>
+        <ArtistText>{music.artist}</ArtistText>
       </TitleContainer>
       <ProgressBarContainer>
         <DurationText>{formatTime(played * duration)}</DurationText>
         <ReactPlayer
           // key 속성이 업데이트될 때마다 ReactPlayer가 재렌더링
-          key={id}
-          url={`https://www.youtube.com/watch?v=${id}`}
+          key={music.musicId}
+          url={`https://www.youtube.com/watch?v=${music.musicId}`}
           width={0}
           height={0}
           ref={playerRef}
@@ -199,9 +225,9 @@ const PlayBar = () => {
         <DurationText>{formatTime(duration)}</DurationText>
       </ProgressBarContainer>
       <ButtonContainer>
-        <Prev />
+        <Prev onClick={handleClickPrev} />
         <div onClick={handleIsPlaying}>{!isPlaying ? <Play /> : <Pause />}</div>
-        <Next />
+        <Next onClick={handleClickNext} />
       </ButtonContainer>
     </Container>
   );

@@ -18,8 +18,6 @@ import musicSlice from './musicSlice';
   2. Reducer
   - 애플리케이션의 상태를 변경하는 함수
   - 현재 상태를 전달받은 action의 type에 따라 새로운 상태 객체를 생성 및 업데이트
-
-  3. Provider
 */
 
 const store = configureStore({

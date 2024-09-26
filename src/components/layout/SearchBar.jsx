@@ -32,7 +32,6 @@ const Input = styled.input`
 const SearchBar = () => {
   const [inputText, setInputText] = useState('');
   const navigate = useNavigate();
-  // const dispatch = useDispatch();
 
   const handleInputChange = (event) => {
     setInputText(event.target.value);
