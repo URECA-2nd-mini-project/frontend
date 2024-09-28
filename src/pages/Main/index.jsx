@@ -1,5 +1,7 @@
 import styled from 'styled-components';
 import MusicItem from '../../components/dashboard/MusicItem';
+import { Instance } from '../../utils/axiosConfig';
+import { useEffect } from 'react';
 
 const Container = styled.div`
   width: calc(100% - 200px);
@@ -133,6 +135,21 @@ const cardDummyData = [
 ];
 
 const Index = () => {
+  // 테스트용 컨트롤러에 get 요청
+  const testApi = async () => {
+    try {
+      const response = await Instance.get('/api/home');
+      console.log('상태 코드 = ', response.status);
+      console.log('응답 결과 = ', response.data);
+    } catch (error) {
+      console.log('응답 실패 = ', error);
+    }
+  };
+
+  useEffect(() => {
+    testApi();
+  }, []);
+
   return (
     <Container>
       <Heading>감정 태그별 음악</Heading>

@@ -2,8 +2,9 @@ import styled from 'styled-components';
 import MusicMenu from '../../assets/icons/menu-music.svg?react';
 import MusicAlt from '../../assets/icons/music-alt.svg?react';
 import { useState } from 'react';
-import AddPlaylistCard from '../../components/play/AddPlaylistCard';
-import AddEmotionCard from '../../components/play/AddEmotionCard';
+import AddPlaylistCard from '../../components/musicInfo/AddPlaylistCard';
+import AddEmotionCard from '../../components/musicInfo/AddEmotionCard';
+import { useParams } from 'react-router-dom';
 
 const Container = styled.div`
   width: calc(100% - 200px);
@@ -109,6 +110,7 @@ const LyricsDummyData = `
 `;
 
 const Index = () => {
+  const { title, artist, musicId } = useParams();
   const [selected, setSelected] = useState('lyrics');
 
   const handleActionButtionClick = (event) => {
@@ -135,9 +137,9 @@ const Index = () => {
   return (
     <Container>
       <MusicInfo>
-        <ThumbnailImg src={'https://img.youtube.com/vi/b4AuXkbe288/maxresdefault.jpg'}></ThumbnailImg>
-        <TitleText>한걸음 더</TitleText>
-        <ArtistText>윤상</ArtistText>
+        <ThumbnailImg src={`https://img.youtube.com/vi/${musicId}/maxresdefault.jpg`}></ThumbnailImg>
+        <TitleText>{title}</TitleText>
+        <ArtistText>{artist}</ArtistText>
         <BtnContainer>
           <ActionBtn data-value="add-playlist" onClick={handleActionButtionClick} selected={selected === 'add-playlist'}>
             <MusicMenu fill={selected === 'add-playlist' ? 'var(--secondary-color)' : 'var(--gray-medium-color)'}></MusicMenu>

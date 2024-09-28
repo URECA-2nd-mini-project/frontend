@@ -8,7 +8,7 @@ import Next from '../assets/icons/play-next.svg?react';
 import Prev from '../assets/icons/play-prev.svg?react';
 import { useSelector } from 'react-redux';
 import { useDispatch } from 'react-redux';
-import { setIndex } from '../redux/musicSlice';
+import { setIndexNext, setIndexPrev } from '../redux/musicSlice';
 
 const Container = styled.div`
   width: calc(100% - 128px);
@@ -165,11 +165,11 @@ const PlayBar = () => {
   };
 
   const handleClickNext = () => {
-    dispatch(setIndex(index + 1));
+    dispatch(setIndexNext());
   };
 
   const handleClickPrev = () => {
-    dispatch(setIndex(index - 1));
+    dispatch(setIndexPrev());
   };
 
   // 화면 렌더링 시 실행
@@ -189,7 +189,9 @@ const PlayBar = () => {
   useEffect(() => {}, [played]);
 
   // index 값이 변경될 때마다 현재 재생 중인 음악 정보를 업데이트
-  useEffect(() => {}, [played, index]);
+  useEffect(() => {
+    setMusic(playlist[index]);
+  }, [playlist, index, duration]);
 
   return (
     <Container>

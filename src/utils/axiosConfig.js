@@ -3,8 +3,9 @@ import axios from 'axios';
 const createInstance = (url) => {
   const config = {
     baseURL: url,
+    withCredentials: true, // 쿠키(로그인 정보)를 자동으로 포함해 요청 전송
     headers: {
-      'Cache-Control': 'no-cache', // 캐시를 사용하지 않도록 설정
+      // 'Cache-Control': 'no-cache', // 캐시를 사용하지 않도록 설정
       'Access-Control-Allow-Credentials': true, // 쿠키 등 인증 정보의 접근 허용
     },
   };

@@ -42,6 +42,7 @@ const SearchBar = () => {
       // 특정 키워드에 대한 검색 화면으로 이동
       // 이동한 페이지 url에서는 useParams를 사용해 inputText를 받아볼 수 있음
       navigate(`/search/${inputText}`);
+      setInputText('');
     }
   };
 
