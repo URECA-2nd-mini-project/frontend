@@ -1,13 +1,15 @@
 // Router 경로 정의
 import MainPage from '../pages/Main';
-import PlayPage from '../pages/Play';
+import MusicInfoPage from '../pages/MusicInfo';
 import PlaylistAll from '../pages/PlaylistAll';
 import EmojiPlaylist from '../pages/EmojiPlaylist';
 import DetailPlaylist from '../pages/DetailPlaylist';
 import AccountsMainPage from '../pages/Accounts/AccountsMainPage.jsx';
 import MueLoginPage from '../pages/FirstStep/MueLoginPage.jsx';
 import EmotionBoard from '../pages/SecondStep/EmotionBoard.jsx';
-import SearchRes from '../pages/MusicSearchRes/SearchRes.jsx';
+// import SearchRes from '../pages/MusicSearchRes/SearchRes.jsx';
+
+import Search from '../pages/Search';
 // 메인 화면 경로
 const MainScreens = {
   Main: {
@@ -16,11 +18,12 @@ const MainScreens = {
   },
   SearchRes: {
     path: '/search/:keyword',
-    element: <SearchRes />,
+    // element: <SearchRes />,
+    element: <Search />,
   },
-  Play: {
-    path: '/musicId',
-    element: <PlayPage />,
+  MusicInfo: {
+    path: '/music/:musicId/:title/:artist',
+    element: <MusicInfoPage />,
   },
   PlaylistAll: {
     path: '/playlist',
