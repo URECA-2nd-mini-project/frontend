@@ -1,5 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit';
 import musicSlice from './musicSlice';
+import userSlice from './userSlice';
 
 /* NOTE) Redux 
   0. Redux란?
@@ -23,6 +24,7 @@ import musicSlice from './musicSlice';
 const store = configureStore({
   reducer: {
     music: musicSlice,
+    user: userSlice,
   },
 });
 

@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 import DefaultProfile from '../../assets/icons/profile-default.svg?react';
-import { useState } from 'react';
+import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 const Container = styled.div`
   width: 124px;
@@ -20,16 +21,23 @@ const ProfileImg = styled.img`
 `;
 
 const Profile = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const { isLoggedIn, userInfo } = useSelector((state) => state.user);
+  const navigate = useNavigate();
 
-  // NOTE) 임시 유저 프로필 데이터 , 통신 구현 후 수정 필요
-  const imgLink = 'https://i.pinimg.com/originals/4c/a5/a1/4ca5a1de62690b5615925ce3def4636d.jpg';
-  const userName = '신혜민';
+  const handleProfileClicked = () => {
+    if (isLoggedIn) {
+      // 로그인한 경우 내 정보 화면으로 이동
+      navigate('/accounts');
+    } else {
+      // 로그인하지 않은 경우 로그인 화면으로 이동
+      navigate('/Mue');
+    }
+  };
 
   return (
-    <Container>
-      {isLoggedIn ? <ProfileImg src={imgLink} referrerPolicy="no-referrer"></ProfileImg> : <DefaultProfile></DefaultProfile>}
-      {isLoggedIn ? <div>{userName}</div> : <div>로그인</div>}
+    <Container onClick={handleProfileClicked}>
+      {isLoggedIn ? <ProfileImg src={userInfo.photoUrl} referrerPolicy="no-referrer"></ProfileImg> : <DefaultProfile></DefaultProfile>}
+      {isLoggedIn ? <div>{userInfo.name}</div> : <div>로그인</div>}
     </Container>
   );
 };
