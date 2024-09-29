@@ -29,14 +29,16 @@ const textStyle = {
 
 // 로그인 버튼 컴포넌트 정의
 const LoginButton = () => {
+  const handleLogin = () => {
+    // 브라우저가 직접 로그인 URL로 이동하도록 설정
+    window.location.href = 'http://localhost:8080/oauth2/authorization/google';
+  };
+
   return (
-    <div>
-      {/* 부모 요소로 감싸기 */}
+    <div onClick={handleLogin} style={buttonStyle}>
+      {/* 클릭 시 handleLogin 함수 호출 */}
+      <img src={googleLogo} alt="Google Icon" style={iconStyle} width="80" height="80" />
       <span style={textStyle}>Google 계정으로 시작하기</span>
-      <a href="http://localhost:8080/oauth2/authorization/google" style={buttonStyle}>
-        <img src={googleLogo} alt="Google Icon" style={iconStyle} width="80" height="80" />
-        <span style={textStyle}>Google</span>
-      </a>
     </div>
   );
 };
