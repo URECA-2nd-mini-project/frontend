@@ -61,7 +61,7 @@ const Menu = [
   },
   {
     text: '플레이리스트',
-    type: 'playlists',
+    type: 'playlist',
   },
   {
     text: '감정',

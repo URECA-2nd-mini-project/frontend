@@ -5,7 +5,7 @@ import MusicMenu from '../../assets/icons/menu-music.svg?react';
 import MusicAlt from '../../assets/icons/music-alt.svg?react';
 import Plus from '../../assets/icons/plus.svg?react';
 import { Instance } from '../../utils/axiosConfig';
-import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const MenuContainer = styled.div`
   width: 254px;
@@ -41,6 +41,8 @@ const MenuType = {
 };
 
 const NavMenuList = ({ menuType, menuText, onSelect, isSelected, playlistId, onPostSuccess }) => {
+  const navigate = useNavigate();
+
   // 메뉴 타입에 맞는 아이콘 지정
   const Icon = MenuType[menuType];
 
@@ -53,6 +55,7 @@ const NavMenuList = ({ menuType, menuText, onSelect, isSelected, playlistId, onP
       console.log('postPlaylist 응답 코드: ', response.headers);
       console.log('postPlaylist 응답 결과: ', response.data);
 
+      // 부모 컴포넌트에 콜백함수로 POST 성공 여부 업데이트
       onPostSuccess();
     } catch (error) {
       console.log('요청 실패: ', error);
@@ -60,18 +63,28 @@ const NavMenuList = ({ menuType, menuText, onSelect, isSelected, playlistId, onP
   };
 
   const handleMenuListClick = () => {
-    if (menuType === 'playlists') {
-      // 메뉴 타입이 playlist인 경우, SelectedMenu를 menuType_playlistId로 지정
-      onSelect(menuType + '_' + playlistId);
-      return;
+    switch (menuType) {
+      case 'home':
+        onSelect(menuType);
+        navigate(`/`);
+        break;
+      case 'playlist':
+        onSelect(menuType);
+        navigate(`/${menuType}`);
+        break;
+      case 'emotion':
+        onSelect(menuType);
+        navigate(`/${menuType}`);
+        break;
+      case 'addPlaylist':
+        onSelect(menuType);
+        postPlaylists();
+        break;
+      case 'playlists':
+        onSelect(menuType + '_' + playlistId);
+        navigate(`/${menuType}/${playlistId}`);
+        break;
     }
-    // 메뉴 타입이 addPlaylist인 경우, postPlaylist API 요청
-    if (menuType === 'addPlaylist') {
-      postPlaylists();
-      onSelect(menuType);
-    }
-    // 메뉴 타입이 playlist가 아닌 경우, SelectedMenu를 menuType(기본)으로 지정
-    onSelect(menuType);
   };
 
   return (
