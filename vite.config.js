@@ -17,8 +17,9 @@ export default defineConfig({
       // Spring 서버
       '/api': {
         target: 'http://localhost:8080',
-        changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
+        changeOrigin: true,
+        // secure: false, // TLS 인증서 검사 비활성화
       },
       // Youtube v3 API
       '/youtube': {

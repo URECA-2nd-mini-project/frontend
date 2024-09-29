@@ -2,6 +2,10 @@ import styled from 'styled-components';
 import MusicItem from '../../components/dashboard/MusicItem';
 import { Instance } from '../../utils/axiosConfig';
 import { useEffect } from 'react';
+import { useDispatch } from 'react-redux';
+import { setLogin } from '../../redux/userSlice';
+import { useSelector } from 'react-redux';
+import { useState } from 'react';
 
 const Container = styled.div`
   width: calc(100% - 200px);
@@ -135,19 +139,35 @@ const cardDummyData = [
 ];
 
 const Index = () => {
-  // 테스트용 컨트롤러에 get 요청
-  const testApi = async () => {
+  const dispatch = useDispatch();
+  const { isLoggedIn } = useSelector((state) => state.user);
+
+  // 메인 화면에 진입 시 유저 로그인 여부 및 유저 정보를 업데이트
+  const getUser = async () => {
     try {
-      const response = await Instance.get('/api/home');
+      const response = await Instance.get('/api/user');
       console.log('상태 코드 = ', response.status);
       console.log('응답 결과 = ', response.data);
+
+      // 현재 로그인한 유저 정보가 없는 경우
+      if (response.status === 401) {
+        console.log('현재 로그인한 유저 정보가 없음');
+        return;
+      }
+
+      console.log(isLoggedIn);
+      // 로그인한 유저 정보가 있는 경우 + 전역 상태에 정보가 없는 경우 전역 상태 업데이트
+      if (response.data && !isLoggedIn) {
+        console.log('로그인한 유저 정보를 업데이트');
+        dispatch(setLogin(response.data));
+      }
     } catch (error) {
       console.log('응답 실패 = ', error);
     }
   };
 
   useEffect(() => {
-    testApi();
+    getUser();
   }, []);
 
   return (
