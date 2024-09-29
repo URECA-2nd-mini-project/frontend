@@ -43,6 +43,17 @@ const Card = styled.div`
   margin: 0px 20px 10px 0px;
 `;
 
+//플레이리스트 제목입력
+const Titleinput = styled.input`
+  border: none;
+  font-weight: bold;
+  font-size: 20px;
+  color: var(--primary-color);
+  width: 350px;
+  margin-top: 10px;
+  background-color: white;
+`;
+
 //text 입력
 const CardTextInput = styled.textarea`
   border-radius: 8px;
@@ -60,7 +71,8 @@ const CardTextInput = styled.textarea`
 const CardTextOutput = styled.p`
   white-space: pre-wrap;
   overflow: break-word;
-  font-size: 20px;
+  font-size: 18px;
+  color: var(--gray-medium-color);
 `;
 
 //태그 컴포넌트
@@ -132,7 +144,7 @@ const Playlistbar = styled.div`
 `;
 
 // 플레이리스트 title
-const PlaylistTitle = styled.div`
+const PlaylistTitleStyled = styled.div`
   font-weight: bold;
   flex: 1;
   text-align: left;
@@ -225,7 +237,8 @@ function index(props) {
   const [uploadImg, setUploadImg] = useState(null); //등록된 이미지
   const fileInputRef = useRef(null); // 업로드 이미지
   const [isEditing, setIsEditing] = useState(true); // 편집 모드 상태
-  const [text, setText] = useState(''); //입력한 텍스트
+  const [playlistTitle, setPlaylistTitle] = useState('새로운 플레이리스 01'); // 플레이리스트 제목
+  const [text, setText] = useState(''); // 플레이리스트 설명
 
   const handleClick = () => {
     setDetailButton(false);
@@ -264,6 +277,11 @@ function index(props) {
     fileInputRef.current.click(); // 파일 입력 요소 클릭
   };
 
+  // 플레이리스트 제목 업데이트
+  const handleTitleChange = (e) => {
+    setPlaylistTitle(e.target.value);
+  };
+
   //텍스트 화면에 표시
   const handleTextChange = (e) => {
     setText(e.target.value);
@@ -284,7 +302,7 @@ function index(props) {
         <PlaylistbarBox>
           <Playlistbar>
             <MusicIcon />
-            <PlaylistTitle>드라이브엔 역시 올드 시티팝</PlaylistTitle>
+            <PlaylistTitleStyled>{isEditing ? '' : playlistTitle}</PlaylistTitleStyled>
             {detailButton ? (
               <DetailePoint onClick={handleClick}></DetailePoint>
             ) : (
@@ -302,7 +320,13 @@ function index(props) {
             <div>
               <UserImg>
                 {uploadImg ? (
-                  <LoadImg src={uploadImg} alt="등록 이미지" onDoubleClick={handleDoubleClick} title="더블클릭시 이미지를 수정할 수 있습니다. 35*35" />
+                  <LoadImg
+                    src={uploadImg}
+                    alt="이미지가 없어요"
+                    onDoubleClick={handleDoubleClick}
+                    accept=".jpg, .jpeg, .png"
+                    title="더블클릭시 이미지를 수정할 수 있습니다. 35*35"
+                  />
                 ) : (
                   <TagBg onClick={() => fileInputRef.current.click()}>선택</TagBg>
                 )}
@@ -310,6 +334,16 @@ function index(props) {
               </UserImg>
               <TextBox>
                 <form onSubmit={handleSubmit}>
+                  <Titleinput
+                    type="text"
+                    placeholder="새플레이리스트 01"
+                    maxLength={19}
+                    title="최대 19자 입력가능"
+                    defaultValue={playlistTitle}
+                    value={playlistTitle}
+                    onChange={handleTitleChange}
+                    disabled={!isEditing}
+                  />
                   <CardTextOutput>{isEditing ? '' : text}</CardTextOutput> {/*작성 후 화면에 표시*/}
                   {isEditing ? (
                     <CardTextInput value={text} onChange={handleTextChange} placeholder="💿 플레이리스트 설명을 작성해보세요!" rows="4" cols="40" />

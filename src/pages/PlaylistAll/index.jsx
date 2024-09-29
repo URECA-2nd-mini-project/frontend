@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import PlayDetailIcon from '../../assets/icons/list-detail.svg?react';
 import PlayListIcon from '../../assets/icons/playlist.svg?react';
 import MusicIcon from '../../assets/icons/musiclist-alt.svg?react';
+import { Instance } from '../../utils/axiosConfig';
 
 const Background = styled.div`
   background: #f9f9f9;
@@ -114,23 +115,39 @@ function index(props) {
   const [detailButton, setDetailButton] = useState(true); //상세보기 버튼
   const [checkBox, setCheckBox] = useState(false); //체크박스 유무
 
-  const Playlists = [
-    {
-      name: '코딩할 때 듣는 Lofi',
-      id: 1,
-    },
-    {
-      name: '드라이브엔 역시 시티팝',
-      id: 2,
-    },
-    {
-      name: '운동하면서 듣는 J-POP',
-      id: 3,
-    },
-  ];
+  // const Playlists = [
+  //   {
+  //     name: '코딩할 때 듣는 Lofi',
+  //     id: 1,
+  //   },
+  //   {
+  //     name: '드라이브엔 역시 시티팝',
+  //     id: 2,
+  //   },
+  //   {
+  //     name: '운동하면서 듣는 J-POP',
+  //     id: 3,
+  //   },
+  // ];
 
-  const [checkedItems, setCheckedItems] = useState(Array(Playlists.length).fill(false)); //체크박스 체크 여부
-  const [playlists, setPlaylists] = useState([...Playlists]); //플레이리스트
+  const [checkedItems, setCheckedItems] = useState([]); //체크박스 체크 여부
+  const [playlists, setPlaylists] = useState([]); //플레이리스트
+
+  const getPlaylists = async () => {
+    try {
+      const response = await Instance.get(`/api/playlists/${userId}`);
+      console.log('상태코드 = ', response.status);
+      console.log('응답결과 = ', response.data);
+      setPlaylists(response.data.data);
+      setCheckedItems(Array(response.data.data.length).fill(false));
+    } catch (error) {
+      console.error('응답실패 = ', error);
+    }
+  };
+
+  useEffect(() => {
+    getPlaylists();
+  }, []);
 
   // 플레이리스트 수정
   const handleClick = () => {
