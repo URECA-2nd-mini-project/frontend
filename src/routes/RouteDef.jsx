@@ -30,11 +30,11 @@ const MainScreens = {
     element: <PlaylistAll />,
   },
   EmojiPlaylist: {
-    path: '/emojiplay',
+    path: '/emotion',
     element: <EmojiPlaylist />,
   },
   DetailPlaylist: {
-    path: '/detailplay',
+    path: '/playlists/:playlistId',
     element: <DetailPlaylist />,
   },
   Accounts: {
