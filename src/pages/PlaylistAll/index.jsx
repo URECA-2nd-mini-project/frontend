@@ -4,6 +4,7 @@ import PlayDetailIcon from '../../assets/icons/list-detail.svg?react';
 import PlayListIcon from '../../assets/icons/playlist.svg?react';
 import MusicIcon from '../../assets/icons/musiclist-alt.svg?react';
 import { Instance } from '../../utils/axiosConfig';
+import { useSelector } from 'react-redux';
 
 const Background = styled.div`
   background: #f9f9f9;
@@ -116,6 +117,8 @@ function index(props) {
   const [checkBox, setCheckBox] = useState(false); //체크박스 유무
   const [checkedItems, setCheckedItems] = useState([]); //체크박스 체크 여부
   const [playlists, setPlaylists] = useState([]); //플레이리스트
+  const { userId } = useSelector((state) => state.user); // 유저 정보 가져오기
+  const { playlistTitle, setPlaylistsTitle } = useState([]);
 
   //플레이리스트 load
   const getPlaylists = async () => {
@@ -123,16 +126,49 @@ function index(props) {
       const response = await Instance.get(`/api/playlists/${userId}`);
       console.log('상태코드 = ', response.status);
       console.log('응답결과 = ', response.data);
-      setPlaylists(response.data.data);
-      setCheckedItems(Array(response.data.data.length).fill(false));
+
+      if (response.data.status) {
+        const playlistsData = response.data.data; // playlists를 추출
+        setPlaylists(playlistsData);
+        setCheckedItems(Array(playlistsData.length).fill(false));
+
+        // 플레이리스트 제목들을 배열로 설정
+        const titles = playlistsData.map((playlist) => playlist.playlistTitle);
+        setPlaylistsTitle(titles); // 배열로 저장
+      } else {
+        console.error('응답 실패:', response.data.message);
+      }
+
+      console.log('사용자=', userId);
     } catch (error) {
       console.error('응답실패 = ', error);
     }
   };
 
   useEffect(() => {
-    getPlaylists();
-  }, []);
+    if (userId) {
+      getPlaylists();
+    }
+  }, [userId]);
+  //   try {
+  //     const response = await Instance.get(`/api/playlists/${userId}`);
+  //     const {playlistTitle} = response.data;
+  //     console.log('상태코드 = ', response.status);
+  //     console.log('응답결과 = ', response.data);
+  //     setPlaylists(response.data.data);
+  //     setCheckedItems(Array(response.data.data.length).fill(false));
+  //     setPlaylistsTitle(playlistTitle);
+  //     console.log('사용자=', userId);
+  //   } catch (error) {
+  //     console.error('응답실패 = ', error);
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   if (userId) {
+  //     getPlaylists();
+  //   }
+  // }, [userId]);
 
   // 플레이리스트 수정, 삭제 버튼 표시
   const handleClick = () => {
@@ -166,7 +202,6 @@ function index(props) {
       const newPlaylists = playlists.filter((_, index) => !checkedItems[index]);
       setPlaylists(newPlaylists);
       setCheckedItems(Array(newPlaylists.length).fill(false)); // 체크 상태 초기화
-
       console.log('플레이리스트가 삭제되었습니다.');
     } catch (error) {
       console.error('플레이리스트 삭제 실패:', error);
@@ -176,7 +211,8 @@ function index(props) {
   // 플레이리스트 저장
   const handleClickSave = async () => {
     const newPlaylist = {
-      name: PlaylistTitle /*플레이리스트 제목 (이부분 제목 설정페이지에서 넘겨 받아야함)*/,
+      name: playlistTitle /*플레이리스트 제목 (이부분 제목 설정페이지에서 넘겨 받아야함)*/,
+      userId: userId,
     };
     try {
       const response = await Instance.post('/api/playlists', newPlaylist);
@@ -218,10 +254,10 @@ function index(props) {
             </>
           )}
         </PlaylistBar>
-        {playlists.map((item, index) => (
-          <PlaylistBox key={item.id}>
+        {playlists.map((item) => (
+          <PlaylistBox key={item.playlistId}>
             <MusicIcon></MusicIcon>
-            <PlaylistContent>{item.name}</PlaylistContent>
+            <PlaylistContent>{item.playlistTitle}</PlaylistContent>
             <CheckCtrl htmlFor={index}>
               {checkBox && (
                 <CheckboxStyle

@@ -1,8 +1,9 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import styled from 'styled-components';
 import MusicIcon from '../../assets/icons/musiclist-alt.svg?react';
 import PlayDetailIcon from '../../assets/icons/list-detail.svg?react';
 import MusicList from '../../components/dashboard/MusicList';
+import { Instance } from '../../utils/axiosConfig';
 
 const Background = styled.div`
   background: #f9f9f9;
@@ -197,58 +198,46 @@ const TextBox = styled.div`
 `;
 
 function index(props) {
-  const PlayMusic = [
-    {
-      song: '지난 날',
-      singer: '유재하',
-      playlists: '드라이브엔 역시 시티팝',
-      id: 1,
-    },
-    {
-      song: '사랑하기 때문에',
-      singer: '유재하',
-      playlists: '드라이브엔 역시 시티팝',
-      id: 2,
-    },
-    {
-      song: '내 마음에 비친 내 모습',
-      singer: '유재하',
-      playlists: '드라이브엔 역시 시티팝',
-      id: 3,
-    },
-    {
-      song: '꽃잎이 지고',
-      singer: '유재하',
-      emoji: '#사용자정의1',
-      id: 4,
-    },
-    {
-      song: '그리움만 쌓이네',
-      singer: '유재하',
-      playlists: '드라이브엔 역시 시티팝',
-      id: 5,
-    },
-  ];
-
   const [detailButton, setDetailButton] = useState(true); // 상세보기 아이콘
-  const [checkedItems, setCheckedItems] = useState(Array(PlayMusic.length).fill(false)); //체크 여부 관리(새로운 음악 리스트 수)
-  const [newMusicList, setNewMusicList] = useState(PlayMusic); // 현재 음악 리스트
+  const [checkedItems, setCheckedItems] = useState([]); //체크 여부 관리(새로운 음악 리스트 수)
+  const [newMusicList, setNewMusicList] = useState([]); // 현재 음악 리스트
   const [showCheckbox, setShowCheckbox] = useState(false); //체크박스 유무 관리
   const [uploadImg, setUploadImg] = useState(null); //등록된 이미지
   const fileInputRef = useRef(null); // 업로드 이미지
   const [isEditing, setIsEditing] = useState(true); // 편집 모드 상태
-  const [playlistTitle, setPlaylistTitle] = useState('새로운 플레이리스 01'); // 플레이리스트 제목
+  const [playlistTitle, setPlaylistTitle] = useState(''); // 플레이리스트 제목
   const [text, setText] = useState(''); // 플레이리스트 설명
+  const [playlistId, setPlaylistId] = useState([]); // playlistId 상태 추가
+  // const { userId } = useSelector((state) => state.user); // 유저 정보 가져오기
 
-  const handleClick = () => {
-    setDetailButton(false);
-    setShowCheckbox(true); // 체크박스 표시
+  // 플레이리스트 음악리스트 load
+  const getPlaylistMusic = async () => {
+    try {
+      const response = await Instance.get(`/api/playlists/${playlistId}`);
+      const { playlistId, playlistTitle, contents, musicList } = response.data; // 필요한 데이터 추출
+      setPlaylistId(playlistId); // 서버에서 생성
+      setPlaylistTitle(playlistTitle); // 플레이리스트 제목
+      setText(contents); // 설명
+      setNewMusicList(musicList || []); // 음악 리스트
+      setCheckedItems(Array(musicList.length).fill(false)); // 체크박스 상태 설정
+      console.log('상태코드 = ', response.status);
+      console.log('응답결과 = ', response.data);
+    } catch (error) {
+      console.error('플레이리스트 가져오기 실패:', error);
+    }
   };
 
-  const handleClickDelete = () => {
-    const updatedPlaylist = newMusicList.filter((_, index) => !checkedItems[index]); //체크된 음악 삭제 후 반환
-    setNewMusicList(updatedPlaylist); //반환 된 새로운 리스트를 랜더링
-    setCheckedItems(Array(updatedPlaylist.length).fill(false)); //체크 상태 초기화
+  useEffect(() => {
+    if (playlistId) {
+      // playlistId가 있을 때만 호출
+      getPlaylistMusic(playlistId);
+    }
+  }, [playlistId]);
+
+  //상세보기 아이콘 클릭
+  const handleClick = () => {
+    setDetailButton(false);
+    setShowCheckbox(true);
   };
 
   // 저장 버튼 클릭시 상세보기 버튼 표시
@@ -264,17 +253,48 @@ function index(props) {
     setCheckedItems(updatedChecked);
   };
 
-  //이미지 업로드
-  const handleChangeImg = (e) => {
-    const file = e.target.files[0];
-    const imgUrl = URL.createObjectURL(file); //파일 주소 변환
-    console.log(imgUrl);
-    setUploadImg(imgUrl);
+  // 이미지 등록 함수
+  const registerImage = async (imageFile) => {
+    try {
+      const formData = new FormData();
+      formData.append('image', imageFile); // 이미지 파일 추가
+      console.log('전송할 이미지:', formData.get('image')); // 이미지 파일 확인
+
+      const response = await Instance.post(`/api/playlists/${playlistId}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      console.log('상태코드 = ', response.status);
+      console.log('응답결과 = ', response.data);
+      return response.data; // 등록된 이미지 URL 반환
+    } catch (error) {
+      console.error('이미지 등록 요청 실패:', error);
+      throw error; // 오류 발생 시 다시 던짐
+    }
   };
 
-  //파일 더블클릭시 수정
+  // 더블 클릭으로 이미지 수정
   const handleDoubleClick = () => {
     fileInputRef.current.click(); // 파일 입력 요소 클릭
+  };
+
+  const handleChangeImg = async (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const imgUrl = URL.createObjectURL(file); // 파일 주소 변환
+      setUploadImg(imgUrl); // 미리보기 이미지 업데이트
+
+      // 이미지 등록
+      try {
+        const updatedImageUrl = await registerImage(file); // 이미지 등록 함수 호출
+        console.log('이미지 등록 성공:', updatedImageUrl);
+        setUploadImg(updatedImageUrl); // 서버에서 반환된 이미지 URL로 미리보기 업데이트
+      } catch (error) {
+        console.error('이미지 등록 요청 실패:', error);
+      }
+    }
   };
 
   // 플레이리스트 제목 업데이트
@@ -287,15 +307,63 @@ function index(props) {
     setText(e.target.value);
   };
 
-  const handleSubmit = (e) => {
+  // 플레이리스트 title, 설명 관리
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (isEditing) {
-      setIsEditing(false); // 편집 모드 종료
-    } else {
-      setIsEditing(true); // 편집 모드 시작
+
+    const updatedPlaylist = {
+      playlistId: playlistId, // 상태에서 받아온 playlistId 사용
+      playlistTitle: playlistTitle,
+      contents: text,
+    };
+
+    try {
+      // 서버에 PUT 요청하여 플레이리스트 업데이트
+      const response = await Instance.put(`/api/playlists/${playlistId}`, updatedPlaylist);
+      console.log('플레이리스트 업데이트 성공:', response.data);
+      console.log('상태코드 = ', response.status);
+      console.log('응답결과 = ', response.data);
+      // 상태 업데이트
+      setPlaylistTitle(response.data.playlistTitle);
+      setText(response.data.contents);
+      // 편집 모드 종료
+      setIsEditing(false);
+    } catch (error) {
+      console.error('플레이리스트 업데이트 실패:', error);
     }
   };
+  //삭제
+  // const handleClickDelete = () => {
+  //   const updatedPlaylist = newMusicList.filter((_, index) => !checkedItems[index]); //체크된 음악 삭제 후 반환
+  //   setNewMusicList(updatedPlaylist); //반환 된 새로운 리스트를 랜더링
+  //   setCheckedItems(Array(updatedPlaylist.length).fill(false)); //체크 상태 초기화
+  // };
 
+  const handleClickDelete = async () => {
+    // 체크된 음악의 ID를 배열로 저장
+    const musicIdsToDelete = newMusicList.map((music, index) => (checkedItems[index] ? music.id : null)).filter(Boolean); // null 값을 제거하여 유효한 ID만 남김
+
+    if (musicIdsToDelete.length === 0) {
+      console.log('삭제할 음악이 선택되지 않았습니다.');
+      return; // 삭제할 음악이 없으면 종료
+    }
+
+    try {
+      // 음악 삭제 요청
+      const response = await Instance.delete(`/api/music/${playlistId}`, {
+        data: { musicIds: musicIdsToDelete }, // 삭제할 음악 ID 배열 전송
+      });
+
+      console.log('음악 삭제 성공:', response.data);
+
+      // 음악 리스트 업데이트
+      const updatedPlaylist = newMusicList.filter((_, index) => !checkedItems[index]);
+      setNewMusicList(updatedPlaylist);
+      setCheckedItems(Array(updatedPlaylist.length).fill(false)); // 체크 상태 초기화
+    } catch (error) {
+      console.error('음악 삭제 실패:', error);
+    }
+  };
   return (
     <Background>
       <Container>
@@ -339,7 +407,6 @@ function index(props) {
                     placeholder="새플레이리스트 01"
                     maxLength={19}
                     title="최대 19자 입력가능"
-                    defaultValue={playlistTitle}
                     value={playlistTitle}
                     onChange={handleTitleChange}
                     disabled={!isEditing}
