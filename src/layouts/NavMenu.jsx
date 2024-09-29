@@ -2,6 +2,10 @@ import styled from 'styled-components';
 import NavMenuList from '../components/layout/NavMenuList';
 import Logo from '../assets/icons/logo.svg?react';
 import { useState } from 'react';
+import { Instance } from '../utils/axiosConfig';
+import { useEffect } from 'react';
+import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 const Container = styled.div`
   background: linear-gradient(#eeeff3, #e1e3ea);
@@ -9,7 +13,7 @@ const Container = styled.div`
   padding: 48px 64px 0 64px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: start;
 `;
 
 const LogoContainer = styled.div`
@@ -22,6 +26,7 @@ const MenuTitle = styled.div`
   color: var(--gray-light-color);
   font-size: 14px;
   font-weight: 500;
+  margin-top: 40px;
   margin-bottom: 20px;
 `;
 
@@ -56,7 +61,7 @@ const Menu = [
   },
   {
     text: '플레이리스트',
-    type: 'playlists',
+    type: 'playlist',
   },
   {
     text: '감정',
@@ -64,28 +69,53 @@ const Menu = [
   },
 ];
 
-// NOTE) playlist 더미 데이터, 통신 구현 후 수정 필요
-const Playlists = [
-  {
-    name: '코딩할 때 듣는 Lofi',
-    id: 1,
-  },
-  {
-    name: '드라이브엔 역시 시티팝',
-    id: 2,
-  },
-  {
-    name: '운동하면서 듣는 J-POP',
-    id: 3,
-  },
-];
+const AddPlaylist = {
+  text: '플레이리스트 추가하기',
+  type: 'addPlaylist',
+};
 
 const NavMenu = () => {
-  const [selectedMenu, setSelectedMenu] = useState(null);
+  const [selectedMenu, setSelectedMenu] = useState('home');
+  const [playlists, setPlaylists] = useState(null);
+  const [isPosted, setIsPosted] = useState(false);
+  const { isLoggedIn } = useSelector((state) => state.user);
+  const navigate = useNavigate();
+
+  const getPlaylists = async () => {
+    try {
+      const response = await Instance.get('/api/playlists');
+      console.log('getPlaylist 응답 코드: ', response.headers);
+      console.log('getPlaylist 응답 결과: ', response.data);
+      setPlaylists(response.data);
+    } catch (error) {
+      console.log('요청 실패: ', error);
+    }
+  };
 
   const handleMenuClick = (menuType) => {
     setSelectedMenu(menuType);
+
+    if (menuType === 'addPlaylist') {
+      setIsPosted(false);
+    }
+
+    if (menuType === 'home') {
+      navigate(`/`);
+    }
+
+    // 감정, 플레이리스트 메뉴 클릭 시 해당 화면으로 이동
+    if (menuType === 'emotion' || menuType === 'playlist') {
+      navigate(`/${menuType}`);
+    }
   };
+
+  useEffect(() => {
+    getPlaylists();
+  }, []);
+
+  useEffect(() => {
+    getPlaylists();
+  }, [isPosted]);
 
   return (
     <Container>
@@ -94,27 +124,54 @@ const NavMenu = () => {
       </LogoContainer>
       <MenuTitle>메뉴</MenuTitle>
       <MenuContainer>
-        <ListContainer>
-          {Menu.map((item, index) => (
-            <NavMenuList key={index} menuText={item.text} menuType={item.type} onSelect={handleMenuClick} isSelected={selectedMenu === item.type}></NavMenuList>
-          ))}
-        </ListContainer>
+        {isLoggedIn ? (
+          <ListContainer>
+            {Menu.map((item, index) => (
+              <NavMenuList
+                key={index}
+                menuText={item.text}
+                menuType={item.type}
+                onSelect={handleMenuClick}
+                isSelected={selectedMenu === item.type}
+              ></NavMenuList>
+            ))}
+          </ListContainer>
+        ) : (
+          <NavMenuList menuText={Menu[0].text} menuType={Menu[0].type} onSelect={handleMenuClick} isSelected={selectedMenu === Menu[0].type}></NavMenuList>
+        )}
       </MenuContainer>
-      <MenuTitle>플레이리스트</MenuTitle>
-      <PlaylistContainer>
-        <ListContainer>
-          {Playlists.map((item, index) => (
+      {isLoggedIn ? <MenuTitle>플레이리스트</MenuTitle> : <div></div>}
+      {isLoggedIn ? (
+        <PlaylistContainer>
+          <ListContainer>
             <NavMenuList
-              key={index}
-              menuText={item.name}
-              menuType={'playlist'}
+              menuText={AddPlaylist.text}
+              menuType={AddPlaylist.type}
               onSelect={handleMenuClick}
-              isSelected={selectedMenu === `playlist_${item.id}`}
-              playlistId={item.id}
+              isSelected={setSelectedMenu === AddPlaylist.type}
+              onPostSuccess={() => {
+                setIsPosted(true);
+              }}
             ></NavMenuList>
-          ))}
-        </ListContainer>
-      </PlaylistContainer>
+            {playlists !== null ? (
+              playlists.map((item, index) => (
+                <NavMenuList
+                  key={index}
+                  menuText={item.playlistTitle}
+                  menuType={'playlists'}
+                  onSelect={handleMenuClick}
+                  isSelected={selectedMenu === `playlists_${item.playlistId}`}
+                  playlistId={item.playlistId}
+                ></NavMenuList>
+              ))
+            ) : (
+              <div></div>
+            )}
+          </ListContainer>
+        </PlaylistContainer>
+      ) : (
+        <div></div>
+      )}
     </Container>
   );
 };

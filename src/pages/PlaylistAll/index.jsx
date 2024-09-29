@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import PlayDetailIcon from '../../assets/icons/list-detail.svg?react';
 import PlayListIcon from '../../assets/icons/playlist.svg?react';
@@ -103,7 +103,7 @@ const CheckboxStyle = styled.input`
 
   &:checked {
     border-color: transparent;
-    ₩  background-size: 20px 20px;
+    background-size: 20px 20px;
     background-position: 50%;
     background-repeat: no-repeat;
     background-image: url('../../assets/icons/checked.svg?react');
