@@ -19,10 +19,11 @@ const PlayBox = styled.div`
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
 `;
 
-const Album = styled.div`
+const CoverImg = styled.img`
   width: 64px;
   height: 64px;
-  border: 1px, solid, black;
+  border-radius: 4px;
+  object-fit: cover;
 `;
 
 const Song = styled.div`
@@ -56,17 +57,16 @@ const CheckboxStyle = styled.input`
 function MusicList({ checkedItems, selectMusic, onIconClick, showCheckbox }) {
   const [filteredMusic, setFilteredMusic] = useState(selectMusic); // Emojipage 음악 리스트 초기화
 
+  console.log('현재 선택한 감정에 포함된 음악 정보 = ', selectMusic);
   useEffect(() => {
     setFilteredMusic(selectMusic); // props가 변경될 때 업데이트
   }, [selectMusic]);
 
   return (
     <div>
-      {filteredMusic.map((item, index) => (
+      {selectMusic.map((item, index) => (
         <PlayBox key={item.musicId}>
-          <Album>
-            <AlbumIcon></AlbumIcon>
-          </Album>
+          <CoverImg src={`https://img.youtube.com/vi/${item.musicId}/maxresdefault.jpg`}></CoverImg>
           <Song>
             <div style={{ fontWeight: 'bold', marginBottom: '3px' }}>{item.title}</div>
             <div>{item.artist}</div>

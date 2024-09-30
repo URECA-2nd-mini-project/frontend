@@ -130,6 +130,7 @@ function index(props) {
       response.data.status;
       const playlistsData = response.data; // playlists를 추출
       setPlaylists(playlistsData);
+      console.log('여기다', playlistsData);
       setCheckedItems(Array(playlistsData.length).fill(false));
     } catch (error) {
       console.error('응답실패 = ', error);
@@ -179,7 +180,7 @@ function index(props) {
   };
 
   // 상태를 서버에 반영하는 함수
-  /** NOTE 수정해야 할 부분
+  /** NOTE) savePlaylists 수정해야 할 부분
    * [ ] FormData로 수정
    * [ ] api 호출 경로 수정
    * [ ] api 호출 시 헤더에 'Content-Type': 'multipart/form-data' 추가

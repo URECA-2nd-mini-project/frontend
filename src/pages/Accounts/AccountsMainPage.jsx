@@ -6,7 +6,7 @@ import React from 'react';
 
 const MainPage = () => {
   return (
-    <div style={{ padding: '20px', backgroundColor: '#f9f9f9' }}>
+    <div style={{ padding: '40px', marginLeft: '120px', backgroundColor: '#f9f9f9' }}>
       {/* Flexbox 컨테이너 추가 */}
       <div style={{ display: 'flex', gap: '20px' }}>
         <AccountSummary />
