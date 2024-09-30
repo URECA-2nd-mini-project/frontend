@@ -1,4 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import MusicIcon from '../../assets/icons/musiclist-alt.svg?react';
 import PlayDetailIcon from '../../assets/icons/list-detail.svg?react';
@@ -199,38 +200,34 @@ const TextBox = styled.div`
 
 function index(props) {
   const [detailButton, setDetailButton] = useState(true); // 상세보기 아이콘
-  const [checkedItems, setCheckedItems] = useState([]); //체크 여부 관리(새로운 음악 리스트 수)
   const [newMusicList, setNewMusicList] = useState([]); // 현재 음악 리스트
+  const [checkedItems, setCheckedItems] = useState(Array(newMusicList.length).fill(false));
   const [showCheckbox, setShowCheckbox] = useState(false); //체크박스 유무 관리
   const [uploadImg, setUploadImg] = useState(null); //등록된 이미지
   const fileInputRef = useRef(null); // 업로드 이미지
   const [isEditing, setIsEditing] = useState(true); // 편집 모드 상태
   const [playlistTitle, setPlaylistTitle] = useState(''); // 플레이리스트 제목
   const [text, setText] = useState(''); // 플레이리스트 설명
-  const [playlistId, setPlaylistId] = useState(''); // 플레이리스트 설명
+  const { playlistId } = useParams(); // URL에서 playlistId 추출
 
-  // 플레이리스트 음악리스트 load
   const getPlaylistMusic = async () => {
     try {
-      const response = await Instance.get(`/api/playlists`);
-      console.log('상태코드 = ', response.status);
-      console.log('응답결과 = ', response.data);
+      const response = await Instance.get(`/api/playlists/music`);
 
-      const { playlistId, playlistTitle, contents, musicList } = response.data; // 필요한 데이터 추출
-      setPlaylistTitle(playlistTitle); // 플레이리스트 제목 설정
-      setText(contents); // 설명 설정
-      setPlaylistId(playlistId); // playlistId 설정
+      // 음악 정보를 상태에 설정
+      const music = response.data.music;
+      const playTitle = response.data.playlistTitle;
+      const musicData = music.map(({ musicId, title, artist }) => ({
+        musicId,
+        title,
+        artist,
+      }));
 
-      // musicList가 존재하는 경우에만 설정
-      if (musicList) {
-        setNewMusicList(musicList);
-        setCheckedItems(Array(musicList.length).fill(false)); // 체크박스 상태 설정
-      } else {
-        setNewMusicList([]); // 기본값 설정
-        setCheckedItems([]); // 체크 상태 초기화
-      }
+      setPlaylistTitle(playTitle);
+      setNewMusicList(musicData);
+      console.log('음악 목록:', musicData);
     } catch (error) {
-      console.error('응답실패 = ', error);
+      console.error('음악 목록 로드 실패:', error);
     }
   };
 
@@ -303,7 +300,7 @@ function index(props) {
   };
 
   // 플레이리스트 제목 업데이트
-  const handleTitleChange = (e) => {
+  const handleTitleChange = (index) => (e) => {
     setPlaylistTitle(e.target.value);
   };
 
@@ -317,7 +314,7 @@ function index(props) {
     e.preventDefault();
 
     const updatedPlaylist = {
-      playlistTitle: playlistTitle,
+      playlistTitle,
       contents: text,
       UserImg: uploadImg,
     };
@@ -370,6 +367,7 @@ function index(props) {
           <Playlistbar>
             <MusicIcon />
             <PlaylistTitleStyled>{isEditing ? '' : playlistTitle}</PlaylistTitleStyled>
+
             {detailButton ? (
               <DetailePoint onClick={handleClick}></DetailePoint>
             ) : (
@@ -408,15 +406,17 @@ function index(props) {
                       type="text"
                       maxLength={19}
                       title="최대 19자 입력가능"
-                      value={playlistTitle || ''}
+                      value={playlistTitle}
                       onChange={handleTitleChange}
                       disabled={!isEditing}
+                      placeholder={playlistTitle}
                     />
-                    <CardTextOutput>{isEditing ? '' : text}</CardTextOutput>
+
+                    <CardTextOutput>{isEditing ? '' : playlistTitle}</CardTextOutput>
                     {isEditing ? (
                       <CardTextInput value={text || ''} onChange={handleTextChange} placeholder="💿 플레이리스트 설명을 작성해보세요!" rows="4" cols="40" />
                     ) : null}
-                    <Tagbtn type="submit">{isEditing ? '확인' : '수정'}</Tagbtn>
+                    <Tagbtn type="submit">{isEditing ? '저장하기' : '수정하기'}</Tagbtn>
                   </TextBox>
                 </div>
               </form>{' '}
@@ -425,12 +425,16 @@ function index(props) {
           </Card>
 
           <PlayBg>
-            <MusicList
-              checkedItems={checkedItems} //체크 상태 전달
-              selectMusic={newMusicList} // 음악 목록 전달
-              onIconClick={handleIconClick} // 체크박스 핸들러 추가
-              showCheckbox={showCheckbox} //체크 박스 표시 상태 전달
-            />
+            {newMusicList.length > 0 ? (
+              <MusicList
+                checkedItems={checkedItems} //체크 상태 전달
+                selectMusic={newMusicList} // 음악 목록 전달
+                onIconClick={handleIconClick} // 체크박스 핸들러 추가
+                showCheckbox={showCheckbox} //체크 박스 표시 상태 전달
+              />
+            ) : (
+              <div>📦 담긴 음악이 없습니다.</div> // 음악이 없을 때 표시할 메시지
+            )}
           </PlayBg>
         </PlayAll>
       </Container>

@@ -4,7 +4,7 @@ import PlayDetailIcon from '../../assets/icons/list-detail.svg?react';
 import PlayListIcon from '../../assets/icons/playlist.svg?react';
 import MusicIcon from '../../assets/icons/musiclist-alt.svg?react';
 import { Instance } from '../../utils/axiosConfig';
-import { useSelector } from 'react-redux';
+import { useParams } from 'react-router-dom';
 
 const Background = styled.div`
   background: #f9f9f9;
@@ -118,6 +118,7 @@ function index(props) {
   const [checkedItems, setCheckedItems] = useState([]); //체크박스 체크 여부
   const [playlists, setPlaylists] = useState([]); //플레이리스트
   const [showSaveButton, setShowSaveButton] = useState(false); // 저장 버튼 표시 상태
+  const { playlistId } = useParams(); // URL에서 playlistId 추출
 
   //플레이리스트 load
   const getPlaylists = async () => {
@@ -145,11 +146,13 @@ function index(props) {
     setCheckBox((prev) => !prev);
   };
 
+  //플레이스트 삭제
   const handleClickDelete = async () => {
     try {
-      const idsToDelete = playlists
-        .filter((_, index) => checkedItems[index]) // 체크된 플레이리스트만 필터링
-        .map((item) => item.playlistId); // ID 배열 생성
+      // 체크된 플레이리스트의 playlistId 배열 생성
+      const idsToDelete = playlists.filter((_, index) => checkedItems[index]).map((item) => item.playlistId);
+
+      console.log('삭제할 플레이리스트 IDs:', idsToDelete);
 
       if (idsToDelete.length === 0) {
         console.log('삭제할 플레이리스트가 없습니다.');
@@ -157,11 +160,11 @@ function index(props) {
       }
 
       // 삭제 요청
-      await Promise.all(
-        idsToDelete.map(async (id) => {
-          await Instance.delete(`/api/playlists/${id}`);
-        })
-      );
+      const response = await Instance.delete(`/api/playlists`, {
+        data: { playlistIds: idsToDelete }, // 요청 본문에 playlistId 배열 포함
+      });
+
+      console.log('플레이리스트 삭제 응답:', response.data);
 
       // 삭제 후 상태 업데이트
       const newPlaylists = playlists.filter((_, index) => !checkedItems[index]);
@@ -174,28 +177,18 @@ function index(props) {
       console.error('플레이리스트 삭제 실패:', error);
     }
   };
-  // // 플레이리스트 저장
-  // const handleClickSave = async () => {
-  //   const newPlaylist = {
-  //     name: playlistTitle /*플레이리스트 제목 (이부분 제목 설정페이지에서 넘겨 받아야함)*/,
-  //   };
-  //   try {
-  //     const response = await Instance.post('/api/playlists', newPlaylist);
-  //     console.log('플레이리스트 저장 성공:', response.data);
-
-  //     setPlaylists((prevPlaylists) => [...prevPlaylists, response.data]); // 상태 업데이트
-
-  //     setDetailButton(true); // 버튼 상태 초기화
-  //     setCheckBox(false); //체크박스 초기화
-  //   } catch (error) {
-  //     console.error('플레이리스트 저장 실패:', error);
-  //   }
-  // };
 
   // 상태를 서버에 반영하는 함수
   const savePlaylists = async (playlistsToSave) => {
     try {
-      const response = await Instance.post('/api/playlists', { playlists: playlistsToSave });
+      // 필요한 형식에 맞게 데이터 변환
+      const playlistsData = playlistsToSave.map((playlist) => ({
+        playlistId: playlist.playlistId, // ID를 포함
+        playlistTitle: playlist.playlistTitle, // 필요한 다른 데이터 추가
+        // 필요한 경우 추가 데이터도 여기에 포함
+      }));
+
+      const response = await Instance.post('/api/playlists/save', { playlists: playlistsData });
       console.log('플레이리스트 상태 저장 성공:', response.data);
     } catch (error) {
       console.error('플레이리스트 상태 저장 실패:', error);
@@ -210,11 +203,6 @@ function index(props) {
       return newCheckedItems;
     });
   };
-
-  // playlists 변경 확인
-  useEffect(() => {
-    console.log(playlists);
-  }, [playlists]);
 
   return (
     <Background>

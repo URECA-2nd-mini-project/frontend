@@ -63,20 +63,20 @@ function MusicList({ checkedItems, selectMusic, onIconClick, showCheckbox }) {
   return (
     <div>
       {filteredMusic.map((item, index) => (
-        <PlayBox key={item.id}>
+        <PlayBox key={item.musicId}>
           <Album>
             <AlbumIcon></AlbumIcon>
           </Album>
           <Song>
-            <div style={{ fontWeight: 'bold', marginBottom: '3px' }}>{item.song}</div>
-            <div>{item.singer}</div>
+            <div style={{ fontWeight: 'bold', marginBottom: '3px' }}>{item.title}</div>
+            <div>{item.artist}</div>
           </Song>
           {showCheckbox ? (
             <CheckCtrl htmlFor={index}>
               <CheckboxStyle
                 type="checkbox"
                 id={index}
-                checked={checkedItems[index] !== undefined ? checkedItems[index] : false} // 체크 상태 설정 (undefined -> false)
+                checked={checkedItems[index] || false} // 체크 상태 설정 (undefined -> false)
                 onChange={() => onIconClick(index)} // 변경 이벤트 처리
               />
             </CheckCtrl>
