@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import PlayDetailIcon from '../../assets/icons/list-detail.svg?react';
 import MusicList from '../../components/dashboard/MusicList';
+import { Instance } from '../../utils/axiosConfig';
 
 const Background = styled.div`
   background: #f9f9f9;
@@ -133,93 +134,45 @@ const PlayBg = styled.div`
 `;
 
 function index(props) {
-  //감정 태그 배열
-  const selectEmoji = [
-    {
-      emoji: '#행복',
-      playlist: null,
-      id: 1,
-    },
-    {
-      emoji: '#분노',
-      playlist: null,
-      id: 2,
-    },
-    {
-      emoji: '#사랑',
-      playlist: null,
-      id: 3,
-    },
-    {
-      emoji: '#슬픔',
-      playlist: null,
-      id: 4,
-    },
-    {
-      emoji: '#기대',
-      playlist: null,
-      id: 5,
-    },
-    {
-      emoji: '#사용자정의1',
-      playlist: null,
-      id: 6,
-    },
-    {
-      emoji: '#사용자정의2',
-      playlist: null,
-      id: 7,
-    },
-    {
-      emoji: '#사용자정의123',
-      playlist: null,
-      id: 8,
-    },
-  ];
-
-  // user 플레이리스트
-  const selectMusic = [
-    {
-      song: '지난 날',
-      singer: '유재하',
-      emoji: '#행복',
-      id: 1,
-    },
-    {
-      song: '사랑하기 때문에',
-      singer: '유재하',
-      emoji: '#행복',
-      id: 2,
-    },
-    {
-      song: '내 마음에 비친 내 모습',
-      singer: '유재하',
-      emoji: '#사랑',
-      id: 3,
-    },
-    {
-      song: '꽃잎이 지고',
-      singer: '유재하',
-      emoji: '#사용자정의1',
-      id: 4,
-    },
-    {
-      song: '그리움만 쌓이네',
-      singer: '유재하',
-      emoji: '#슬픔',
-      id: 5,
-    },
-  ];
-
-  const [newMusicList, setNewMusicList] = useState(selectMusic); //음악리스트
-  const [checkedItems, setCheckedItems] = useState(Array(selectMusic.length).fill(false)); //체크박스 여부
+  const [newMusicList, setNewMusicList] = useState([]); //음악리스트
+  const [checkedItems, setCheckedItems] = useState([]); //체크박스 여부
   const [detailButton, setDetailButton] = useState(true); //상세보기 버튼
-  const [emojiSelect, setEmojiSelect] = useState(null); // 감정태그
+  const [emojiSelect, setEmojiSelect] = useState([]); // 감정태그
+  const [selectedEmoji, setSelectedEmoji] = useState(null); // 선택한 이모션 태그
   const [showCheckbox, setShowCheckbox] = useState(false); //체크박스 존재 여부
 
+  const getEmotionTags = async () => {
+    try {
+      const response = await Instance.get('/api/emotionTag/music');
+      console.log('감정 태그 응답:', response.data);
+      const musicData = response.data.flatMap(({ music }) =>
+        music.map(({ musicId, title, artist }) => ({
+          musicId,
+          title,
+          artist,
+        }))
+      );
+      // 감정 태그 데이터를 상태에 설정
+      setEmojiSelect(
+        response.data.map((tag) => ({
+          emotionTagId: tag.emotionTagId,
+          emotionTag: tag.emotionTag,
+        }))
+      );
+      setNewMusicList(musicData);
+      setCheckedItems(Array(musicData.length).fill(false)); // 음악 리스트 길이에 맞춰 체크박스 배열 초기화
+    } catch (error) {
+      console.error('감정 태그 로드 실패:', error);
+    }
+  };
+
+  useEffect(() => {
+    getEmotionTags();
+  }, []);
+
   //감정 태그 클릭
-  const handleEmojiClick = (emoji) => {
-    setEmojiSelect(emoji);
+  const handleEmojiClick = (emotionTag) => {
+    setSelectedEmoji(emotionTag);
     setCheckedItems(Array(newMusicList.length).fill(false));
   };
 
@@ -237,16 +190,49 @@ function index(props) {
   };
 
   //음악 삭제
-  const handleClickDelete = () => {
-    const updatedPlaylist = newMusicList.filter((_, index) => !checkedItems[index]);
-    setNewMusicList(updatedPlaylist); // 새로운 플레이리스트 상태 업데이트
-    setCheckedItems(Array(updatedPlaylist.length).fill(false));
+  const handleClickDelete = async () => {
+    // 체크된 음악의 ID를 배열로 저장
+    const musicIdsToDelete = newMusicList.map((music, index) => (checkedItems[index] ? music.musicId : null)).filter(Boolean); // null 값을 제거하여 유효한 ID만 남김
+
+    if (musicIdsToDelete.length === 0) {
+      console.log('삭제할 음악이 선택되지 않았습니다.');
+      return; // 삭제할 음악이 없으면 종료
+    }
+
+    try {
+      // 음악 삭제 요청
+      const response = await Instance.delete(`/api/music/${playlistId}`, {
+        data: { musicIds: musicIdsToDelete }, // 삭제할 음악 ID 배열 전송
+      });
+
+      console.log('음악 삭제 성공:', response.data);
+
+      // 음악 리스트 업데이트
+      const updatedPlaylist = newMusicList.filter((_, index) => !checkedItems[index]);
+      setNewMusicList(updatedPlaylist);
+      setCheckedItems(Array(updatedPlaylist.length).fill(false)); // 체크 상태 초기화
+    } catch (error) {
+      console.error('음악 삭제 실패:', error);
+    }
   };
 
-  // 음악 수정 후 저장 (저장 기능 구현 필요)
-  const handleClickSave = () => {
-    setDetailButton(true);
-    setShowCheckbox(false);
+  // 음악 수정 후 저장
+  const handleClickSave = async () => {
+    try {
+      const updatedMusicData = newMusicList.map((music) => ({
+        musicId: music.musicId,
+      }));
+
+      const response = await Instance.put('/api/music', {
+        musicData: updatedMusicData, // 수정된 음악 리스트 전송
+      });
+
+      console.log('음악 저장 성공:', response.data);
+      setDetailButton(true);
+      setShowCheckbox(false);
+    } catch (error) {
+      console.error('음악 저장 실패:', error);
+    }
   };
 
   // 최신 상태의 음악리스트 상태관리
@@ -259,17 +245,17 @@ function index(props) {
       <Container>
         <TagMsg>😎 듣고싶은 감정 태그를 클릭해보세요!</TagMsg>
         <EmojiBox>
-          {selectEmoji.map((item, index) => (
-            <div key={index}>
-              <TagBg selected={emojiSelect === item.emoji} onClick={() => handleEmojiClick(item.emoji)}>
-                {item.emoji}
+          {emojiSelect.map((item) => (
+            <div key={item.emojiTagId}>
+              <TagBg selected={selectedEmoji === item.emotionTag} onClick={() => handleEmojiClick(item.emotionTag)}>
+                {item.emotionTag}
               </TagBg>
             </div>
           ))}
         </EmojiBox>
         <div>
           <TagBar>
-            <div>{emojiSelect && <SelectTagBg>{emojiSelect}</SelectTagBg>}</div>
+            <div>{selectedEmoji && <SelectTagBg>{selectedEmoji}</SelectTagBg>}</div>
             {detailButton ? (
               <DetailePoint onClick={handleClick}></DetailePoint>
             ) : (
@@ -282,10 +268,10 @@ function index(props) {
             )}
           </TagBar>
           <PlayBg>
-            {newMusicList.filter((music) => music.emoji === emojiSelect).length > 0 ? (
+            {newMusicList.filter((music) => selectedEmoji && music.emotionTag === selectedEmoji).length > 0 ? (
               <MusicList
                 checkedItems={checkedItems}
-                selectMusic={newMusicList.filter((music) => music.emoji === emojiSelect)}
+                selectMusic={newMusicList.filter((music) => music.emotionTag === selectedEmoji)}
                 onIconClick={handleIconClick}
                 showCheckbox={showCheckbox}
               />

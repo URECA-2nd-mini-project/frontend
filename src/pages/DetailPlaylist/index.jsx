@@ -201,7 +201,7 @@ const TextBox = styled.div`
 function index(props) {
   const [detailButton, setDetailButton] = useState(true); // 상세보기 아이콘
   const [newMusicList, setNewMusicList] = useState([]); // 현재 음악 리스트
-  const [checkedItems, setCheckedItems] = useState(Array(newMusicList.length).fill(false));
+  const [checkedItems, setCheckedItems] = useState([]); //체크 여부 관리
   const [showCheckbox, setShowCheckbox] = useState(false); //체크박스 유무 관리
   const [uploadImg, setUploadImg] = useState(null); //등록된 이미지
   const fileInputRef = useRef(null); // 업로드 이미지
@@ -215,13 +215,14 @@ function index(props) {
       const response = await Instance.get(`/api/playlists/music`);
 
       // 음악 정보를 상태에 설정
-      const music = response.data.music;
       const playTitle = response.data.playlistTitle;
-      const musicData = music.map(({ musicId, title, artist }) => ({
-        musicId,
-        title,
-        artist,
-      }));
+      const musicData = response.data.flatMap(({ music }) =>
+        music.map(({ musicId, title, artist }) => ({
+          musicId,
+          title,
+          artist,
+        }))
+      );
 
       setPlaylistTitle(playTitle);
       setNewMusicList(musicData);
@@ -359,6 +360,10 @@ function index(props) {
       console.error('음악 삭제 실패:', error);
     }
   };
+  // 최신 상태의 음악리스트 상태관리
+  useEffect(() => {
+    setCheckedItems(Array(newMusicList.length).fill(false)); // newMusicList가 변경될 때 체크 상태 반영
+  }, [newMusicList]);
 
   return (
     <Background>
