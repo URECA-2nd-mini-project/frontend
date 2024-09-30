@@ -226,7 +226,7 @@ const Index = () => {
         </MusicListContainer>
         <MusicListContainer>
           <Heading>최근 재생한 음악</Heading>
-          {emotionPlaylist === null || emotionPlaylist.length === 0 ? (
+          {recentPlayedMusic === null || emotionPlaylist.length === 0 ? (
             <NoDataContainer>
               <div>최근에 재생한 음악이 없어요.</div>
             </NoDataContainer>
