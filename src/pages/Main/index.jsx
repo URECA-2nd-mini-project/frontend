@@ -7,6 +7,8 @@ import { setLogin } from '../../redux/userSlice';
 import { useSelector } from 'react-redux';
 import { useState } from 'react';
 
+/** 첫번쨰 시연 버전 */
+
 const Container = styled.div`
   width: 100%;
   height: 100%;
