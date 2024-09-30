@@ -187,7 +187,7 @@ const Index = () => {
     <Container>
       <Heading>감정 태그별 음악</Heading>
       <CardContainer>
-        {emotionPlaylist && emotionPlaylist.length === 0 ? (
+        {emotionPlaylist === null || emotionPlaylist.length === 0 ? (
           <NoDataContainer width="1200px" height="270px" marginleft="0px" margintop="8px">
             <div>등록한 감정 기록이 없어요.</div>
           </NoDataContainer>
@@ -226,7 +226,7 @@ const Index = () => {
         </MusicListContainer>
         <MusicListContainer>
           <Heading>최근 재생한 음악</Heading>
-          {emotionPlaylist && emotionPlaylist.length === 0 ? (
+          {emotionPlaylist === null || emotionPlaylist.length === 0 ? (
             <NoDataContainer>
               <div>최근에 재생한 음악이 없어요.</div>
             </NoDataContainer>
