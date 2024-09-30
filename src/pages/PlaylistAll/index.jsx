@@ -120,7 +120,7 @@ function index(props) {
   const [showSaveButton, setShowSaveButton] = useState(false); // 저장 버튼 표시 상태
   const { playlistId } = useParams(); // URL에서 playlistId 추출
 
-  //플레이리스트 load
+  // 플레이리스트 load
   const getPlaylists = async () => {
     try {
       const response = await Instance.get(`/api/playlists`);
@@ -179,6 +179,11 @@ function index(props) {
   };
 
   // 상태를 서버에 반영하는 함수
+  /** NOTE 수정해야 할 부분
+   * [ ] FormData로 수정
+   * [ ] api 호출 경로 수정
+   * [ ] api 호출 시 헤더에 'Content-Type': 'multipart/form-data' 추가
+   */
   const savePlaylists = async (playlistsToSave) => {
     try {
       // 필요한 형식에 맞게 데이터 변환
