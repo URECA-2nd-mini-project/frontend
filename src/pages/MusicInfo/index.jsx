@@ -70,6 +70,11 @@ const ActionBtn = styled.button`
 const Index = () => {
   const { title, artist, musicId } = useParams();
   const [selected, setSelected] = useState('add-emotion');
+  const music = {
+    musicId: musicId,
+    title: title,
+    artist: artist,
+  };
 
   const handleActionButtionClick = (event) => {
     const value = event.currentTarget.dataset.value;
@@ -86,7 +91,7 @@ const Index = () => {
       case 'add-playlist':
         return <AddPlaylistCard></AddPlaylistCard>;
       case 'add-emotion':
-        return <AddEmotionCard></AddEmotionCard>;
+        return <AddEmotionCard music={music}></AddEmotionCard>;
     }
   };
 
