@@ -58,7 +58,7 @@ const NavMenuList = ({ menuType, menuText, onSelect, isSelected, playlistId, onP
       // 부모 컴포넌트에 콜백함수로 POST 성공 여부 업데이트
       onPostSuccess();
     } catch (error) {
-      console.log('요청 실패: ', error);
+      console.log('postPlaylist 요청 실패: ', error);
     }
   };
 

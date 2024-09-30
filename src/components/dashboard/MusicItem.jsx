@@ -1,5 +1,7 @@
 import styled from 'styled-components';
 import PlayRound from '../../assets/icons/play-round.svg?react';
+import { useDispatch } from 'react-redux';
+import { setMusic } from '../../redux/musicSlice';
 
 const Container = styled.div`
   width: calc(520px - 48px);
@@ -37,9 +39,13 @@ const TitleContainer = styled.div`
 `;
 
 const TitleText = styled.div`
+  width: 300px;
   color: var(--gray-dark-color);
   font-size: 18px;
   font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 const ArtistText = styled.div`
@@ -48,17 +54,31 @@ const ArtistText = styled.div`
   font-weight: 400;
 `;
 
-const MusicItem = () => {
+const MusicItem = ({ musicId, title, artist }) => {
+  // const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const handleButtonClick = () => {
+    const musicData = {
+      musicId: musicId,
+      title: title,
+      artist: artist,
+    };
+
+    // dispatch로 store에 현재 재생중인 음악 상태 및 인덱스 업데이트
+    dispatch(setMusic([musicData]));
+    // navigate(`/music/${musicId}/${title}/${artist}`);
+  };
   return (
     <Container>
       <LeftContainer>
-        <CoverImg src={'https://img.youtube.com/vi/b4AuXkbe288/maxresdefault.jpg'}></CoverImg>
+        <CoverImg src={`https://img.youtube.com/vi/${musicId}/maxresdefault.jpg`}></CoverImg>
         <TitleContainer>
-          <TitleText>Supernova</TitleText>
-          <ArtistText>aespa</ArtistText>
+          <TitleText>{title}</TitleText>
+          <ArtistText>{artist}</ArtistText>
         </TitleContainer>
       </LeftContainer>
-      <div onClick={null}>
+      <div onClick={handleButtonClick}>
         <PlayRound></PlayRound>
       </div>
     </Container>

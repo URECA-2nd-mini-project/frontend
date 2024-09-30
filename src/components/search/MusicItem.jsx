@@ -70,7 +70,7 @@ const MusicItem = ({ musicId, title, artist }) => {
   return (
     <Container>
       <LeftContainer>
-        <CoverImg src={`https://img.youtube.com/vi/${musicId}/maxresdefault.jpg`}></CoverImg>
+        <CoverImg src={`https://img.youtube.com/vi/${musicId}/maxresdefault.jpg`} referrerPolicy="no-referrer"></CoverImg>
         <TitleContainer>
           <TitleText>{title}</TitleText>
           <ArtistText>{artist}</ArtistText>
