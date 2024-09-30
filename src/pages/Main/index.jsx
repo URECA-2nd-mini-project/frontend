@@ -68,20 +68,20 @@ const ThumbnailImg = styled.img`
 const MusicWrapper = styled.div`
   display: flex;
   flex-direction: row;
-  gap: 132px;
+  gap: 100px;
 `;
 
 const MusicListContainer = styled.div``;
 
-const MusicListContainerSub = styled.div`
-  width: 600px;
-  height: 580px;
+const NoDataContainer = styled.div`
+  width: ${(props) => props.width || '532px'};
+  height: ${(props) => props.height || '580px'};
   background-color: var(--gray-bright-color);
   color: var(--gray-light-color);
   font-size: 20px;
   font-weight: 500;
-  margin-top: 16px;
-  margin-left: 40px;
+  margin-top: ${(props) => props.margintop || '16px'};
+  margin-left: ${(props) => props.marginleft || '40px'};
   border-radius: 8px;
   display: flex;
   justify-content: center;
@@ -96,67 +96,10 @@ const MusicList = styled.div`
   gap: 8px;
 `;
 
-// NOTE) 카드 더미 데이터, 서버 구현 후 수정 필요
-const cardDummyData = [
-  {
-    emotion: '즐거움',
-    thumbnails: [
-      'https://img.youtube.com/vi/b4AuXkbe288/maxresdefault.jpg',
-      'https://img.youtube.com/vi/b4AuXkbe288/maxresdefault.jpg',
-      'https://img.youtube.com/vi/b4AuXkbe288/maxresdefault.jpg',
-      'https://img.youtube.com/vi/b4AuXkbe288/maxresdefault.jpg',
-    ],
-  },
-  {
-    emotion: '슬픔',
-    thumbnails: [
-      'https://img.youtube.com/vi/b4AuXkbe288/maxresdefault.jpg',
-      'https://img.youtube.com/vi/b4AuXkbe288/maxresdefault.jpg',
-      'https://img.youtube.com/vi/b4AuXkbe288/maxresdefault.jpg',
-      'https://img.youtube.com/vi/b4AuXkbe288/maxresdefault.jpg',
-    ],
-  },
-  {
-    emotion: '기쁨',
-    thumbnails: [
-      'https://img.youtube.com/vi/b4AuXkbe288/maxresdefault.jpg',
-      'https://img.youtube.com/vi/b4AuXkbe288/maxresdefault.jpg',
-      'https://img.youtube.com/vi/b4AuXkbe288/maxresdefault.jpg',
-      'https://img.youtube.com/vi/b4AuXkbe288/maxresdefault.jpg',
-    ],
-  },
-  {
-    emotion: '우울',
-    thumbnails: [
-      'https://img.youtube.com/vi/b4AuXkbe288/maxresdefault.jpg',
-      'https://img.youtube.com/vi/b4AuXkbe288/maxresdefault.jpg',
-      'https://img.youtube.com/vi/b4AuXkbe288/maxresdefault.jpg',
-      'https://img.youtube.com/vi/b4AuXkbe288/maxresdefault.jpg',
-    ],
-  },
-  {
-    emotion: '우울',
-    thumbnails: [
-      'https://img.youtube.com/vi/b4AuXkbe288/maxresdefault.jpg',
-      'https://img.youtube.com/vi/b4AuXkbe288/maxresdefault.jpg',
-      'https://img.youtube.com/vi/b4AuXkbe288/maxresdefault.jpg',
-      'https://img.youtube.com/vi/b4AuXkbe288/maxresdefault.jpg',
-    ],
-  },
-  {
-    emotion: '우울',
-    thumbnails: [
-      'https://img.youtube.com/vi/b4AuXkbe288/maxresdefault.jpg',
-      'https://img.youtube.com/vi/b4AuXkbe288/maxresdefault.jpg',
-      'https://img.youtube.com/vi/b4AuXkbe288/maxresdefault.jpg',
-      'https://img.youtube.com/vi/b4AuXkbe288/maxresdefault.jpg',
-    ],
-  },
-];
-
 const Index = () => {
   const [mostPopularMusic, setMostPopularMusic] = useState(null);
   const [recentPlayedMusic, setRecentPlayedMusic] = useState(null);
+  const [emotionPlaylist, setEmotionPlaylist] = useState(null);
   const dispatch = useDispatch();
   const { isLoggedIn } = useSelector((state) => state.user);
 
@@ -184,6 +127,18 @@ const Index = () => {
     }
   };
 
+  // 감정 태그별 음악 정보를 불러옴
+  const getEmotionPlaylist = async () => {
+    try {
+      const response = await Instance.get('/api/emotionTag/music');
+      console.log('get EmotionPlaylist 상태 코드 = ', response.status);
+      console.log('get EmotionPlaylist 응답 결과 = ', response.data);
+      setEmotionPlaylist(response.data);
+    } catch (error) {
+      console.log('get EmotionPlaylist 응답 실패 = ', error);
+    }
+  };
+
   // 가장 최근에 재생한 곡 5개를 서버로부터 받아옴
   const getRecentPlayedMusic = async () => {
     try {
@@ -195,7 +150,7 @@ const Index = () => {
         setRecentPlayedMusic(response.data);
       }
     } catch (error) {
-      console.log('응답 실패 = ', error);
+      console.log('get playhistory 응답 실패 = ', error);
     }
   };
 
@@ -211,13 +166,13 @@ const Index = () => {
         },
       });
 
-      console.log('상태 코드 = ', response.status);
-      console.log('응답 결과 = ', response.data);
+      console.log('get MostPopularMusic 상태 코드 = ', response.status);
+      console.log('get MostPopularMusic 응답 결과 = ', response.data);
 
       // 받아온 동영상 리스트를 상태로 저장
       setMostPopularMusic(response.data.items);
     } catch (error) {
-      console.log('응답 실패 = ', error);
+      console.log('get MostPopularMusic 응답 실패 = ', error);
     }
   };
 
@@ -225,22 +180,29 @@ const Index = () => {
     getUser();
     getRecentPlayedMusic();
     getMostPopularMusic();
+    getEmotionPlaylist();
   }, []);
 
   return (
     <Container>
       <Heading>감정 태그별 음악</Heading>
       <CardContainer>
-        {cardDummyData.map((item, index) => (
-          <EmotionTagCard key={index}>
-            <EmotionTagCover>
-              {item.thumbnails.map((thumbnail, index) => (
-                <ThumbnailImg key={index} src={thumbnail} referrerPolicy="no-referrer"></ThumbnailImg>
-              ))}
-            </EmotionTagCover>
-            {`# ${item.emotion}`}
-          </EmotionTagCard>
-        ))}
+        {emotionPlaylist && emotionPlaylist.length === 0 ? (
+          <NoDataContainer width="1200px" height="270px" marginleft="0px" margintop="8px">
+            <div>등록한 감정 기록이 없어요.</div>
+          </NoDataContainer>
+        ) : (
+          emotionPlaylist.map((item, index) => (
+            <EmotionTagCard key={index}>
+              <EmotionTagCover>
+                {item.music.map((item, index) => (
+                  <ThumbnailImg key={index} src={`https://img.youtube.com/vi/${item.musicId}/maxresdefault.jpg`} referrerPolicy="no-referrer"></ThumbnailImg>
+                ))}
+              </EmotionTagCover>
+              {`# ${item.emotion}`}
+            </EmotionTagCard>
+          ))
+        )}
       </CardContainer>
       <MusicWrapper>
         <MusicListContainer>
@@ -264,10 +226,10 @@ const Index = () => {
         </MusicListContainer>
         <MusicListContainer>
           <Heading>최근 재생한 음악</Heading>
-          {recentPlayedMusic === null ? (
-            <MusicListContainerSub>
+          {emotionPlaylist && emotionPlaylist.length === 0 ? (
+            <NoDataContainer>
               <div>최근에 재생한 음악이 없어요.</div>
-            </MusicListContainerSub>
+            </NoDataContainer>
           ) : (
             <MusicList>
               {recentPlayedMusic.map((item, index) => (

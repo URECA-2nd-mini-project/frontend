@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useState } from 'react';
+import { Instance } from '../../utils/axiosConfig';
 import styled from 'styled-components';
 
 const Container = styled.div`
@@ -181,12 +182,61 @@ const dummyEmotionsData = [
   },
 ];
 
-const AddEmotionCard = () => {
+const AddEmotionCard = ({ musicId }) => {
   const [selectedTab, setSelectedTab] = useState(0);
   const [selectedEmotion, setSelectedEmotion] = useState(0);
   const [emotions, setEmotions] = useState([]);
   const [newEmotionTag, setNewEmotionTag] = useState('');
   const [emotionInputText, setEmotionInpuText] = useState('');
+  const [emotionTags, setEmotionTags] = useState(null);
+  const [isEmotionTagUpdated, setIsEmotionTagUpdated] = useState(false);
+
+  // 서버로부터 감정 태그 정보를 불러옴
+  const getEmotionTags = async () => {
+    try {
+      const response = await Instance.get('/api/emotionTag');
+      console.log('get EmotionTags 상태 코드 = ', response.status);
+      console.log('get EmotionTags 응답 결과 = ', response.data);
+      const transformedData = response.data.map((item) => ({
+        emotionTag: item.emotionTag,
+        emotionTagId: item.emotionTagId,
+      }));
+      setEmotionTags(transformedData); // 상태에 저장
+    } catch (error) {
+      console.log('get EmotionTags 응답 실패 = ', error);
+    }
+  };
+
+  // 서버에 새로운 감정 태그를 저장함
+  const postNewEmotionTag = async () => {
+    try {
+      console.log(newEmotionTag);
+      const response = await Instance.post('/api/emotionTag', [{ emotionTag: newEmotionTag }]);
+      console.log('post EmotionTag 상태 코드 = ', response.status);
+      console.log('post EmotionTag 응답 결과 = ', response.data);
+      setEmotionTags(response.data);
+      setIsEmotionTagUpdated(true);
+    } catch (error) {
+      console.log('post EmotionTag 응답 실패 = ', error);
+    }
+  };
+
+  // 서버에 감정 기록을 저장함
+  const postEmotionLog = async () => {
+    try {
+      const response = await Instance.post('/api/emotionLog', {
+        musicId: musicId,
+        emotionTagId: emotionTags[selectedEmotion],
+        contents: emotionInputText,
+      });
+      console.log('post EmotionLog 상태 코드 = ', response.status);
+      console.log('post EmotionLog 응답 결과 = ', response.data);
+      window.alert('감정 기록이 저장되었어요.');
+    } catch (error) {
+      console.log('post EmotionLog 응답 실패 = ', error);
+      window.alert('감정 기록 저장에 실패했어요.');
+    }
+  };
 
   // Tab이 클릭될 때 실행되는 이벤트 핸들러
   const handleTabClick = (tabNo) => {
@@ -223,7 +273,7 @@ const AddEmotionCard = () => {
       }
 
       // 새로운 감정일 경우 emotionTag state에 추가
-      setEmotions((prevEmotions) => [newEmotionTag, ...prevEmotions]);
+      postNewEmotionTag();
       setNewEmotionTag('');
     }
   };
@@ -233,15 +283,17 @@ const AddEmotionCard = () => {
     setEmotionInpuText(event.target.value);
   };
 
-  // NOTE) 작성한 감정 태그 및 내용을 서버에 저장하는 함수, 통신 구현 후 수정 필요
-  const saveEmotionLog = () => {
-    console.log(emotions[selectedEmotion]);
-    console.log(emotionInputText);
-  };
-
+  // 최초 렌더링 시 및 isEmotionTagUpdated가 true일 때 태그 목록 가져오기
   useEffect(() => {
-    setEmotions(dummyChipData);
-  }, []);
+    if (isEmotionTagUpdated) {
+      getEmotionTags();
+      setIsEmotionTagUpdated(false); // 상태를 다시 초기화 (get 이후)
+    }
+  }, [isEmotionTagUpdated]);
+
+  // useEffect(() => {
+  //   getEmotionTags();
+  // }, []);
 
   return (
     <Container>
@@ -259,15 +311,19 @@ const AddEmotionCard = () => {
           <HeadingText>감정 태그 선택하기</HeadingText>
           <ChipContainer>
             <InputChip placeholder="+ 추가하기" value={newEmotionTag} onChange={handleInputChipChange} onKeyPress={handleKeyPress}></InputChip>
-            {emotions.map((item, index) => (
-              <Chip key={index} onClick={() => handleChipClick(index)} selected={selectedEmotion === index}>
-                {`# ${item}`}
-              </Chip>
-            ))}
+            {emotionTags === null ? (
+              <div></div>
+            ) : (
+              emotionTags.map((item, index) => (
+                <Chip key={index} onClick={() => handleChipClick(index)} selected={selectedEmotion === index}>
+                  {`# ${item.emotionTag}`}
+                </Chip>
+              ))
+            )}
           </ChipContainer>
           <HeadingText>감정 기록하기</HeadingText>
           <EmotionTextArea placeholder="음악을 들으며 느낀 감정을 기록해보세요." value={emotionInputText} onChange={handleTextAreaChange}></EmotionTextArea>
-          <SaveBtn onClick={saveEmotionLog}>저장하기</SaveBtn>
+          <SaveBtn onClick={postEmotionLog}>저장하기</SaveBtn>
         </div>
       ) : (
         <MyEmotionLogContainer>
