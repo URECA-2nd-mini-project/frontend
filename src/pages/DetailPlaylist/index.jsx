@@ -207,32 +207,37 @@ function index(props) {
   const [isEditing, setIsEditing] = useState(true); // 편집 모드 상태
   const [playlistTitle, setPlaylistTitle] = useState(''); // 플레이리스트 제목
   const [text, setText] = useState(''); // 플레이리스트 설명
-  const [playlistId, setPlaylistId] = useState([]); // playlistId 상태 추가
-  // const { userId } = useSelector((state) => state.user); // 유저 정보 가져오기
+  const [playlistId, setPlaylistId] = useState(''); // 플레이리스트 설명
 
   // 플레이리스트 음악리스트 load
   const getPlaylistMusic = async () => {
     try {
-      const response = await Instance.get(`/api/playlists/${playlistId}`);
-      const { playlistId, playlistTitle, contents, musicList } = response.data; // 필요한 데이터 추출
-      setPlaylistId(playlistId); // 서버에서 생성
-      setPlaylistTitle(playlistTitle); // 플레이리스트 제목
-      setText(contents); // 설명
-      setNewMusicList(musicList || []); // 음악 리스트
-      setCheckedItems(Array(musicList.length).fill(false)); // 체크박스 상태 설정
+      const response = await Instance.get(`/api/playlists`);
       console.log('상태코드 = ', response.status);
       console.log('응답결과 = ', response.data);
+
+      const { playlistId, playlistTitle, contents, musicList } = response.data; // 필요한 데이터 추출
+      setPlaylistTitle(playlistTitle); // 플레이리스트 제목 설정
+      setText(contents); // 설명 설정
+      setPlaylistId(playlistId); // playlistId 설정
+
+      // musicList가 존재하는 경우에만 설정
+      if (musicList) {
+        setNewMusicList(musicList);
+        setCheckedItems(Array(musicList.length).fill(false)); // 체크박스 상태 설정
+      } else {
+        setNewMusicList([]); // 기본값 설정
+        setCheckedItems([]); // 체크 상태 초기화
+      }
     } catch (error) {
-      console.error('플레이리스트 가져오기 실패:', error);
+      console.error('응답실패 = ', error);
     }
   };
 
+  // 컴포넌트가 마운트될 때 데이터 로드
   useEffect(() => {
-    if (playlistId) {
-      // playlistId가 있을 때만 호출
-      getPlaylistMusic(playlistId);
-    }
-  }, [playlistId]);
+    getPlaylistMusic();
+  }, []);
 
   //상세보기 아이콘 클릭
   const handleClick = () => {
@@ -312,17 +317,16 @@ function index(props) {
     e.preventDefault();
 
     const updatedPlaylist = {
-      playlistId: playlistId, // 상태에서 받아온 playlistId 사용
       playlistTitle: playlistTitle,
       contents: text,
+      UserImg: uploadImg,
     };
 
     try {
       // 서버에 PUT 요청하여 플레이리스트 업데이트
       const response = await Instance.put(`/api/playlists/${playlistId}`, updatedPlaylist);
       console.log('플레이리스트 업데이트 성공:', response.data);
-      console.log('상태코드 = ', response.status);
-      console.log('응답결과 = ', response.data);
+
       // 상태 업데이트
       setPlaylistTitle(response.data.playlistTitle);
       setText(response.data.contents);
@@ -332,12 +336,6 @@ function index(props) {
       console.error('플레이리스트 업데이트 실패:', error);
     }
   };
-  //삭제
-  // const handleClickDelete = () => {
-  //   const updatedPlaylist = newMusicList.filter((_, index) => !checkedItems[index]); //체크된 음악 삭제 후 반환
-  //   setNewMusicList(updatedPlaylist); //반환 된 새로운 리스트를 랜더링
-  //   setCheckedItems(Array(updatedPlaylist.length).fill(false)); //체크 상태 초기화
-  // };
 
   const handleClickDelete = async () => {
     // 체크된 음악의 ID를 배열로 저장
@@ -364,6 +362,7 @@ function index(props) {
       console.error('음악 삭제 실패:', error);
     }
   };
+
   return (
     <Background>
       <Container>
@@ -386,38 +385,42 @@ function index(props) {
         <PlayAll>
           <Card>
             <div>
-              <UserImg>
-                {uploadImg ? (
-                  <LoadImg
-                    src={uploadImg}
-                    alt="이미지가 없어요"
-                    onDoubleClick={handleDoubleClick}
-                    accept=".jpg, .jpeg, .png"
-                    title="더블클릭시 이미지를 수정할 수 있습니다. 35*35"
-                  />
-                ) : (
-                  <TagBg onClick={() => fileInputRef.current.click()}>선택</TagBg>
-                )}
-                <input type="file" onChange={handleChangeImg} ref={fileInputRef} style={{ display: 'none' }} />
-              </UserImg>
-              <TextBox>
-                <form onSubmit={handleSubmit}>
-                  <Titleinput
-                    type="text"
-                    placeholder="새플레이리스트 01"
-                    maxLength={19}
-                    title="최대 19자 입력가능"
-                    value={playlistTitle}
-                    onChange={handleTitleChange}
-                    disabled={!isEditing}
-                  />
-                  <CardTextOutput>{isEditing ? '' : text}</CardTextOutput> {/*작성 후 화면에 표시*/}
-                  {isEditing ? (
-                    <CardTextInput value={text} onChange={handleTextChange} placeholder="💿 플레이리스트 설명을 작성해보세요!" rows="4" cols="40" />
-                  ) : null}{' '}
-                  <Tagbtn type="submit">{isEditing ? '확인' : '수정'}</Tagbtn>
-                </form>
-              </TextBox>
+              <form onSubmit={handleSubmit}>
+                {' '}
+                {/* form 태그를 상위 요소로 이동 */}
+                <div>
+                  <UserImg>
+                    {uploadImg ? (
+                      <LoadImg
+                        src={uploadImg}
+                        alt="이미지가 없어요"
+                        onDoubleClick={handleDoubleClick}
+                        accept=".jpg, .jpeg, .png"
+                        title="더블클릭시 이미지를 수정할 수 있습니다. 35*35"
+                      />
+                    ) : (
+                      <TagBg onClick={() => fileInputRef.current.click()}>선택</TagBg>
+                    )}
+                    <input type="file" onChange={handleChangeImg} ref={fileInputRef} style={{ display: 'none' }} />
+                  </UserImg>
+                  <TextBox>
+                    <Titleinput
+                      type="text"
+                      maxLength={19}
+                      title="최대 19자 입력가능"
+                      value={playlistTitle || ''}
+                      onChange={handleTitleChange}
+                      disabled={!isEditing}
+                    />
+                    <CardTextOutput>{isEditing ? '' : text}</CardTextOutput>
+                    {isEditing ? (
+                      <CardTextInput value={text || ''} onChange={handleTextChange} placeholder="💿 플레이리스트 설명을 작성해보세요!" rows="4" cols="40" />
+                    ) : null}
+                    <Tagbtn type="submit">{isEditing ? '확인' : '수정'}</Tagbtn>
+                  </TextBox>
+                </div>
+              </form>{' '}
+              {/* form 태그 닫기 */}
             </div>
           </Card>
 
