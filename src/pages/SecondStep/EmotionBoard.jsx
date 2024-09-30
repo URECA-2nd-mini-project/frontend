@@ -3,6 +3,7 @@ import Progress from '../FirstStep/Progress';
 import WelcomeMessage from '../FirstStep/Intro';
 import EmotionTags from './Emotion'; // Emotion 태그 컴포넌트 가져오기
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios'; // Axios 추가
 
 const containerStyle = {
   position: 'relative',
@@ -43,7 +44,7 @@ const subTextStyle = {
 const emotionBoardStyle = {
   position: 'absolute',
   left: '1280px', // EmotionBoard의 x좌표 (조정 필요)
-  top: '503x', // EmotionBoard의 y좌표
+  top: '503px', // EmotionBoard의 y좌표
   display: 'flex',
   flexDirection: 'column',
 };
@@ -78,9 +79,20 @@ const EmotionBoard = () => {
     }
   };
 
-  const handleGoHome = () => {
-    console.log('홈으로 이동하기 클릭됨');
-    navigate('/'); // 홈으로 이동
+  const handleGoHome = async () => {
+    if (selectedTags.length === 5) {
+      try {
+        // 감정 태그를 서버에 등록하는 API 호출
+        await axios.post(
+          '/api/emotionTag',
+          selectedTags.map((tag) => ({ emotionTag: tag }))
+        );
+        console.log('감정 태그 등록 성공');
+        navigate('/'); // 홈으로 이동
+      } catch (error) {
+        console.error('감정 태그 등록 실패:', error); // 에러 핸들링
+      }
+    }
   };
 
   return (
