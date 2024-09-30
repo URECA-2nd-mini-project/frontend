@@ -1,4 +1,9 @@
+import { useSelector } from 'react-redux'; // Redux에서 사용자 정보 가져오기
+
 const AccountSummary = () => {
+  // useSelector를 사용하여 Redux 상태에서 사용자 정보를 가져옴
+  const { userInfo } = useSelector((state) => state.user);
+
   return (
     <div style={{ marginBottom: '20px' }}>
       <h2
@@ -22,7 +27,7 @@ const AccountSummary = () => {
       >
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <img
-            src="https://i.pinimg.com/originals/c5/ae/3a/c5ae3a02a869f7381797046f59854d54.jpg"
+            src={userInfo.photoUrl} // 로그인한 사용자의 프로필 이미지
             alt="User profile"
             style={{
               borderRadius: '50%',
@@ -45,7 +50,7 @@ const AccountSummary = () => {
                 color: 'var(--gray-medium-color)', // 이메일 주소 색상 지정
               }}
             >
-              y0uaremysumm2r@gmail.com
+              {userInfo.gmail} {/* 로그인한 사용자의 이메일 */}
             </p>
           </div>
         </div>
