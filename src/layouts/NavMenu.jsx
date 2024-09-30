@@ -88,7 +88,7 @@ const NavMenu = () => {
       console.log('getPlaylist 응답 결과: ', response.data);
       setPlaylists(response.data);
     } catch (error) {
-      console.log('요청 실패: ', error);
+      console.log('getPlaylist 요청 실패: ', error);
     }
   };
 
