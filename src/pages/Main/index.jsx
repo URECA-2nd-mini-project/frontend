@@ -8,7 +8,7 @@ import { useSelector } from 'react-redux';
 import { useState } from 'react';
 
 const Container = styled.div`
-  width: calc(100% - 200px);
+  width: 100%;
   height: 100%;
   padding: 0px 100px 200px 80px;
   overflow-x: hidden;
@@ -78,7 +78,7 @@ const NoDataContainer = styled.div`
   height: ${(props) => props.height || '580px'};
   background-color: var(--gray-bright-color);
   color: var(--gray-light-color);
-  font-size: 20px;
+  font-size: ${(props) => props.fontSize || '20px'};
   font-weight: 500;
   margin-top: ${(props) => props.margintop || '16px'};
   margin-left: ${(props) => props.marginleft || '40px'};
@@ -195,11 +195,17 @@ const Index = () => {
           emotionPlaylist.map((item, index) => (
             <EmotionTagCard key={index}>
               <EmotionTagCover>
-                {item.music.map((item, index) => (
-                  <ThumbnailImg key={index} src={`https://img.youtube.com/vi/${item.musicId}/maxresdefault.jpg`} referrerPolicy="no-referrer"></ThumbnailImg>
-                ))}
+                {item.music.length === 0 ? (
+                  <NoDataContainer width="320px" height="240px" marginleft="0px" margintop="0px" fontSize="16px">
+                    아직 등록된 음악이 없어요.
+                  </NoDataContainer>
+                ) : (
+                  item.music.map((item, index) => (
+                    <ThumbnailImg key={index} src={`https://img.youtube.com/vi/${item.musicId}/maxresdefault.jpg`} referrerPolicy="no-referrer"></ThumbnailImg>
+                  ))
+                )}
               </EmotionTagCover>
-              {`# ${item.emotion}`}
+              {`# ${item.emotionTag}`}
             </EmotionTagCard>
           ))
         )}
@@ -226,7 +232,7 @@ const Index = () => {
         </MusicListContainer>
         <MusicListContainer>
           <Heading>최근 재생한 음악</Heading>
-          {recentPlayedMusic === null || emotionPlaylist.length === 0 ? (
+          {recentPlayedMusic === null || recentPlayedMusic.length === 0 ? (
             <NoDataContainer>
               <div>최근에 재생한 음악이 없어요.</div>
             </NoDataContainer>

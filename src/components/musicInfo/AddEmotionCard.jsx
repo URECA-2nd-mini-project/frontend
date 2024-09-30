@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useState } from 'react';
 import { Instance } from '../../utils/axiosConfig';
 import styled from 'styled-components';
+import { formatDate } from '../../utils/formatDate';
 
 const Container = styled.div`
   position: relative;
@@ -136,59 +137,14 @@ const MyEmotionLogDateText = styled.div`
   font-size: 16px;
   font-weight: 400;
 `;
-// NOTE) 감정 Chip 더미데이터, API 구현 후 수정 예정
-const dummyChipData = ['기쁨', '슬픔', '즐거움', '신남', '우울'];
 
-const dummyEmotionsData = [
-  {
-    tag: '기쁨',
-    content: '안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕방가방가하이루방가방가하이루방가',
-    createdAt: '2024.09.24 11:54',
-  },
-  {
-    tag: '기쁨',
-    content: '안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕',
-    createdAt: '2024.09.24 11:54',
-  },
-  {
-    tag: '기쁨',
-    content: '안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕',
-    createdAt: '2024.09.24 11:54',
-  },
-  {
-    tag: '기쁨',
-    content: '안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕',
-    createdAt: '2024.09.24 11:54',
-  },
-  {
-    tag: '기쁨',
-    content: '안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕',
-    createdAt: '2024.09.24 11:54',
-  },
-  {
-    tag: '기쁨',
-    content: '안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕',
-    createdAt: '2024.09.24 11:54',
-  },
-  {
-    tag: '기쁨',
-    content: '안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕',
-    createdAt: '2024.09.24 11:54',
-  },
-  {
-    tag: '기쁨',
-    content: '안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕안녕',
-    createdAt: '2024.09.24 11:54',
-  },
-];
-
-const AddEmotionCard = ({ musicId }) => {
+const AddEmotionCard = ({ music }) => {
   const [selectedTab, setSelectedTab] = useState(0);
   const [selectedEmotion, setSelectedEmotion] = useState(0);
-  const [emotions, setEmotions] = useState([]);
   const [newEmotionTag, setNewEmotionTag] = useState('');
   const [emotionInputText, setEmotionInpuText] = useState('');
   const [emotionTags, setEmotionTags] = useState(null);
+  const [emotionLogs, setEmotionLogs] = useState(null);
   const [isEmotionTagUpdated, setIsEmotionTagUpdated] = useState(false);
 
   // 서버로부터 감정 태그 정보를 불러옴
@@ -225,8 +181,8 @@ const AddEmotionCard = ({ musicId }) => {
   const postEmotionLog = async () => {
     try {
       const response = await Instance.post('/api/emotionLog', {
-        musicId: musicId,
-        emotionTagId: emotionTags[selectedEmotion],
+        music: music,
+        emotionTagId: emotionTags[selectedEmotion].emotionTagId,
         contents: emotionInputText,
       });
       console.log('post EmotionLog 상태 코드 = ', response.status);
@@ -238,8 +194,24 @@ const AddEmotionCard = ({ musicId }) => {
     }
   };
 
+  // 서버에서 감정 기록을 불러옴
+  const getEmotionLog = async () => {
+    try {
+      const response = await Instance.get(`/api/emotionLog/${music.musicId}`);
+      console.log('get EmotionLog 상태 코드 = ', response.status);
+      console.log('get EmotionLog 응답 결과 = ', response.data);
+      setEmotionLogs(response.data);
+    } catch (error) {
+      console.log('get EmotionLog 응답 실패 = ', error);
+    }
+  };
+
   // Tab이 클릭될 때 실행되는 이벤트 핸들러
   const handleTabClick = (tabNo) => {
+    if (tabNo === 1) {
+      getEmotionLog();
+    }
+
     if (selectedTab === tabNo) {
       return;
     } else {
@@ -267,7 +239,7 @@ const AddEmotionCard = ({ musicId }) => {
   const handleKeyPress = (event) => {
     if (event.key === 'Enter') {
       // 이미 등록된 감정일 경우 alert창을 띄우고 등록 예외 처리
-      if (emotions.find((item) => item === newEmotionTag)) {
+      if (emotionTags.find((item) => item.emotionTag === newEmotionTag)) {
         window.alert('이미 등록된 감정이에요.');
         return;
       }
@@ -291,9 +263,9 @@ const AddEmotionCard = ({ musicId }) => {
     }
   }, [isEmotionTagUpdated]);
 
-  // useEffect(() => {
-  //   getEmotionTags();
-  // }, []);
+  useEffect(() => {
+    getEmotionTags();
+  }, []);
 
   return (
     <Container>
@@ -327,15 +299,19 @@ const AddEmotionCard = ({ musicId }) => {
         </div>
       ) : (
         <MyEmotionLogContainer>
-          {dummyEmotionsData.map((item, index) => (
-            <MyEmotionLogCard key={index}>
-              <div>
-                <Chip selected={true}>{`# ${item.tag}`}</Chip>
-              </div>
-              <MyEmotionLogText>{item.content}</MyEmotionLogText>
-              <MyEmotionLogDateText>{item.createdAt}</MyEmotionLogDateText>
-            </MyEmotionLogCard>
-          ))}
+          {emotionLogs === null || emotionLogs.length === 0 ? (
+            <div></div>
+          ) : (
+            emotionLogs.map((item, index) => (
+              <MyEmotionLogCard key={index}>
+                <div>
+                  <Chip selected={true}>{`# ${item.emotionTag}`}</Chip>
+                </div>
+                <MyEmotionLogText>{item.contents}</MyEmotionLogText>
+                <MyEmotionLogDateText>{formatDate(item.createdAt)}</MyEmotionLogDateText>
+              </MyEmotionLogCard>
+            ))
+          )}
         </MyEmotionLogContainer>
       )}
     </Container>
