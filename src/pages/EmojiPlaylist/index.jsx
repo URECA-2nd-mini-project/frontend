@@ -235,10 +235,10 @@ function index(props) {
     }
   };
 
-  // // 최신 상태의 음악리스트 상태관리
-  // useEffect(() => {
-  //   setCheckedItems(Array(newMusicList.length).fill(false)); // newMusicList가 변경될 때 체크 상태 반영
-  // }, [newMusicList]);
+  // 최신 상태의 음악리스트 상태관리
+  useEffect(() => {
+    setCheckedItems(Array(newMusicList.length).fill(false)); // newMusicList가 변경될 때 체크 상태 반영
+  }, [newMusicList]);
 
   return (
     <Background>
