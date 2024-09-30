@@ -19,12 +19,13 @@ const Heading = styled.div`
   color: var(--gray-dark-color);
   font-size: 20px;
   font-weight: 600;
-  margin-left: 20px;
+  margin-left: 40px;
 `;
 
 const CardContainer = styled.div`
   width: 100%;
   padding: 16px 20px;
+  margin-left: 20px;
   margin-bottom: 80px;
   display: flex;
   flex-direction: row;
@@ -72,11 +73,26 @@ const MusicWrapper = styled.div`
 
 const MusicListContainer = styled.div``;
 
+const MusicListContainerSub = styled.div`
+  width: 600px;
+  height: 580px;
+  background-color: var(--gray-bright-color);
+  color: var(--gray-light-color);
+  font-size: 20px;
+  font-weight: 500;
+  margin-top: 16px;
+  margin-left: 40px;
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
 const MusicList = styled.div`
   display: flex;
   flex-direction: column;
   margin-left: 20px;
-  padding-top: 20px;
+  padding-top: 8px;
   gap: 8px;
 `;
 
@@ -139,6 +155,8 @@ const cardDummyData = [
 ];
 
 const Index = () => {
+  const [mostPopularMusic, setMostPopularMusic] = useState(null);
+  const [recentPlayedMusic, setRecentPlayedMusic] = useState(null);
   const dispatch = useDispatch();
   const { isLoggedIn } = useSelector((state) => state.user);
 
@@ -166,8 +184,47 @@ const Index = () => {
     }
   };
 
+  // 가장 최근에 재생한 곡 5개를 서버로부터 받아옴
+  const getRecentPlayedMusic = async () => {
+    try {
+      const response = await Instance.get('/api/playHistory');
+      console.log('get playhistory 상태 코드 = ', response.status);
+      console.log('get playhistory 응답 결과 = ', response.data);
+
+      if (response.data) {
+        setRecentPlayedMusic(response.data);
+      }
+    } catch (error) {
+      console.log('응답 실패 = ', error);
+    }
+  };
+
+  // Youtube playlist API 호출 함수
+  const getMostPopularMusic = async () => {
+    try {
+      const response = await Instance.get('/youtube/v3/playlistItems', {
+        params: {
+          key: import.meta.env.VITE_YOUTUBE_API_KEY, // YouTube API Key
+          part: 'snippet', // 동영상 정보의 일부 (제목, 설명 등)
+          playlistId: 'PLFgquLnL59alGJcdc0BEZJb2p7IgkL0Oe', // 가져올 플레이리스트 ID
+          maxResults: 5, // 가져올 동영상의 최대 개수
+        },
+      });
+
+      console.log('상태 코드 = ', response.status);
+      console.log('응답 결과 = ', response.data);
+
+      // 받아온 동영상 리스트를 상태로 저장
+      setMostPopularMusic(response.data.items);
+    } catch (error) {
+      console.log('응답 실패 = ', error);
+    }
+  };
+
   useEffect(() => {
     getUser();
+    getRecentPlayedMusic();
+    getMostPopularMusic();
   }, []);
 
   return (
@@ -189,22 +246,35 @@ const Index = () => {
         <MusicListContainer>
           <Heading>국내 인기 음악</Heading>
           <MusicList>
-            <MusicItem></MusicItem>
-            <MusicItem></MusicItem>
-            <MusicItem></MusicItem>
-            <MusicItem></MusicItem>
-            <MusicItem></MusicItem>
+            <MusicList>
+              {mostPopularMusic === null ? (
+                <div>정보를 받아오고 있어요.</div>
+              ) : (
+                mostPopularMusic.map((item, index) => (
+                  <MusicItem
+                    key={index}
+                    musicId={item.snippet.resourceId.videoId}
+                    title={item.snippet.title}
+                    artist={item.snippet.videoOwnerChannelTitle.replace(/ - Topic$/, '')}
+                  ></MusicItem>
+                ))
+              )}
+            </MusicList>
           </MusicList>
         </MusicListContainer>
         <MusicListContainer>
           <Heading>최근 재생한 음악</Heading>
-          <MusicList>
-            <MusicItem></MusicItem>
-            <MusicItem></MusicItem>
-            <MusicItem></MusicItem>
-            <MusicItem></MusicItem>
-            <MusicItem></MusicItem>
-          </MusicList>
+          {recentPlayedMusic === null ? (
+            <MusicListContainerSub>
+              <div>최근에 재생한 음악이 없어요.</div>
+            </MusicListContainerSub>
+          ) : (
+            <MusicList>
+              {recentPlayedMusic.map((item, index) => (
+                <MusicItem key={index} musicId={item.musicId} title={item.title} artist={item.artist}></MusicItem>
+              ))}
+            </MusicList>
+          )}
         </MusicListContainer>
       </MusicWrapper>
     </Container>
