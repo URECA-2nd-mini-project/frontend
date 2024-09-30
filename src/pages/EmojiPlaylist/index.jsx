@@ -133,12 +133,20 @@ const PlayBg = styled.div`
   padding: 20px 50px;
 `;
 
+/** NOTE 로직
+ * 모든 감정 태그를 emojis로 관리
+ * 현재 선택한 감정 태그를 selectedEmoji로 관리 (현재는 텍스트만 들어가 있는 상태)
+ * 특정 emoji를 클릭하면 해당 emoji의 emoji.music이 아래에 렌더링되어야 함
+ * music은 map 함수로 selectMusic props 안에 전달
+ */
+
 function index(props) {
   const [newMusicList, setNewMusicList] = useState([]); //음악리스트
   const [checkedItems, setCheckedItems] = useState([]); //체크박스 여부
   const [detailButton, setDetailButton] = useState(true); //상세보기 버튼
-  const [emojiSelect, setEmojiSelect] = useState([]); // 감정태그
-  const [selectedEmoji, setSelectedEmoji] = useState(null); // 선택한 이모션 태그
+  const [emojis, setEmojis] = useState([]); // 감정 태그 전체
+  const [selectedEmoji, setSelectedEmoji] = useState(null); // 선택한 감정 태그
+  const [selectedEmojiNum, setSelectedEmojiNum] = useState(-1); // 선택한 감정 태그
   const [showCheckbox, setShowCheckbox] = useState(false); //체크박스 존재 여부
 
   const getEmotionTags = async () => {
@@ -152,11 +160,13 @@ function index(props) {
           artist,
         }))
       );
+
       // 감정 태그 데이터를 상태에 설정
-      setEmojiSelect(
+      setEmojis(
         response.data.map((tag) => ({
           emotionTagId: tag.emotionTagId,
           emotionTag: tag.emotionTag,
+          music: tag.music,
         }))
       );
       setNewMusicList(musicData);
@@ -171,8 +181,10 @@ function index(props) {
   }, []);
 
   //감정 태그 클릭
-  const handleEmojiClick = (emotionTag) => {
+  const handleEmojiClick = (emotionTag, index) => {
     setSelectedEmoji(emotionTag);
+    setSelectedEmojiNum(index);
+    console.log(selectedEmojiNum);
     setCheckedItems(Array(newMusicList.length).fill(false));
   };
 
@@ -245,9 +257,9 @@ function index(props) {
       <Container>
         <TagMsg>😎 듣고싶은 감정 태그를 클릭해보세요!</TagMsg>
         <EmojiBox>
-          {emojiSelect.map((item) => (
-            <div key={item.emojiTagId}>
-              <TagBg selected={selectedEmoji === item.emotionTag} onClick={() => handleEmojiClick(item.emotionTag)}>
+          {emojis.map((item, index) => (
+            <div key={index}>
+              <TagBg selected={selectedEmoji === item.emotionTag} onClick={() => handleEmojiClick(item.emotionTag, index)}>
                 {item.emotionTag}
               </TagBg>
             </div>
@@ -268,15 +280,10 @@ function index(props) {
             )}
           </TagBar>
           <PlayBg>
-            {newMusicList.filter((music) => selectedEmoji && music.emotionTag === selectedEmoji).length > 0 ? (
-              <MusicList
-                checkedItems={checkedItems}
-                selectMusic={newMusicList.filter((music) => music.emotionTag === selectedEmoji)}
-                onIconClick={handleIconClick}
-                showCheckbox={showCheckbox}
-              />
-            ) : (
+            {selectedEmojiNum === -1 ? (
               <div>🌝 감정에 담긴 음악이 없습니다.</div>
+            ) : (
+              <MusicList checkedItems={checkedItems} selectMusic={emojis[selectedEmojiNum].music} onIconClick={handleIconClick} showCheckbox={showCheckbox} />
             )}
           </PlayBg>
         </div>
