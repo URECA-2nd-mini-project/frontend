@@ -3,7 +3,7 @@ import Progress from '../FirstStep/Progress';
 import WelcomeMessage from '../FirstStep/Intro';
 import EmotionTags from './Emotion'; // Emotion 태그 컴포넌트 가져오기
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios'; // Axios 추가
+import { Instance } from '../../utils/axiosConfig'; // 1. Instance import
 
 const containerStyle = {
   position: 'relative',
@@ -83,7 +83,7 @@ const EmotionBoard = () => {
     if (selectedTags.length === 5) {
       try {
         // 감정 태그를 서버에 등록하는 API 호출
-        await axios.post(
+        await Instance.post(
           '/api/emotionTag',
           selectedTags.map((tag) => ({ emotionTag: tag }))
         );
