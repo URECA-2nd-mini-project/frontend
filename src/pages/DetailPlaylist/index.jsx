@@ -215,13 +215,14 @@ function index(props) {
       const response = await Instance.get(`/api/playlists/music`);
 
       // 음악 정보를 상태에 설정
-      const music = response.data.music;
       const playTitle = response.data.playlistTitle;
-      const musicData = music.map(({ musicId, title, artist }) => ({
-        musicId,
-        title,
-        artist,
-      }));
+      const musicData = response.data.flatMap(({ music }) =>
+        music.map(({ musicId, title, artist }) => ({
+          musicId,
+          title,
+          artist,
+        }))
+      );
 
       setPlaylistTitle(playTitle);
       setNewMusicList(musicData);
