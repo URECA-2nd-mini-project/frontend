@@ -1,8 +1,10 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import MusicIcon from '../../assets/icons/musiclist-alt.svg?react';
 import PlayDetailIcon from '../../assets/icons/list-detail.svg?react';
 import MusicList from '../../components/dashboard/MusicList';
+import { Instance } from '../../utils/axiosConfig';
 
 const Background = styled.div`
   background: #f9f9f9;
@@ -43,6 +45,17 @@ const Card = styled.div`
   margin: 0px 20px 10px 0px;
 `;
 
+//플레이리스트 제목입력
+const Titleinput = styled.input`
+  border: none;
+  font-weight: bold;
+  font-size: 20px;
+  color: var(--primary-color);
+  width: 350px;
+  margin-top: 10px;
+  background-color: white;
+`;
+
 //text 입력
 const CardTextInput = styled.textarea`
   border-radius: 8px;
@@ -60,7 +73,8 @@ const CardTextInput = styled.textarea`
 const CardTextOutput = styled.p`
   white-space: pre-wrap;
   overflow: break-word;
-  font-size: 20px;
+  font-size: 18px;
+  color: var(--gray-medium-color);
 `;
 
 //태그 컴포넌트
@@ -132,7 +146,7 @@ const Playlistbar = styled.div`
 `;
 
 // 플레이리스트 title
-const PlaylistTitle = styled.div`
+const PlaylistTitleStyled = styled.div`
   font-weight: bold;
   flex: 1;
   text-align: left;
@@ -185,57 +199,47 @@ const TextBox = styled.div`
 `;
 
 function index(props) {
-  const PlayMusic = [
-    {
-      song: '지난 날',
-      singer: '유재하',
-      playlists: '드라이브엔 역시 시티팝',
-      id: 1,
-    },
-    {
-      song: '사랑하기 때문에',
-      singer: '유재하',
-      playlists: '드라이브엔 역시 시티팝',
-      id: 2,
-    },
-    {
-      song: '내 마음에 비친 내 모습',
-      singer: '유재하',
-      playlists: '드라이브엔 역시 시티팝',
-      id: 3,
-    },
-    {
-      song: '꽃잎이 지고',
-      singer: '유재하',
-      emoji: '#사용자정의1',
-      id: 4,
-    },
-    {
-      song: '그리움만 쌓이네',
-      singer: '유재하',
-      playlists: '드라이브엔 역시 시티팝',
-      id: 5,
-    },
-  ];
-
   const [detailButton, setDetailButton] = useState(true); // 상세보기 아이콘
-  const [checkedItems, setCheckedItems] = useState(Array(PlayMusic.length).fill(false)); //체크 여부 관리(새로운 음악 리스트 수)
-  const [newMusicList, setNewMusicList] = useState(PlayMusic); // 현재 음악 리스트
+  const [newMusicList, setNewMusicList] = useState([]); // 현재 음악 리스트
+  const [checkedItems, setCheckedItems] = useState(Array(newMusicList.length).fill(false));
   const [showCheckbox, setShowCheckbox] = useState(false); //체크박스 유무 관리
   const [uploadImg, setUploadImg] = useState(null); //등록된 이미지
   const fileInputRef = useRef(null); // 업로드 이미지
   const [isEditing, setIsEditing] = useState(true); // 편집 모드 상태
-  const [text, setText] = useState(''); //입력한 텍스트
+  const [playlistTitle, setPlaylistTitle] = useState(''); // 플레이리스트 제목
+  const [text, setText] = useState(''); // 플레이리스트 설명
+  const { playlistId } = useParams(); // URL에서 playlistId 추출
 
-  const handleClick = () => {
-    setDetailButton(false);
-    setShowCheckbox(true); // 체크박스 표시
+  const getPlaylistMusic = async () => {
+    try {
+      const response = await Instance.get(`/api/playlists/music`);
+
+      // 음악 정보를 상태에 설정
+      const music = response.data.music;
+      const playTitle = response.data.playlistTitle;
+      const musicData = music.map(({ musicId, title, artist }) => ({
+        musicId,
+        title,
+        artist,
+      }));
+
+      setPlaylistTitle(playTitle);
+      setNewMusicList(musicData);
+      console.log('음악 목록:', musicData);
+    } catch (error) {
+      console.error('음악 목록 로드 실패:', error);
+    }
   };
 
-  const handleClickDelete = () => {
-    const updatedPlaylist = newMusicList.filter((_, index) => !checkedItems[index]); //체크된 음악 삭제 후 반환
-    setNewMusicList(updatedPlaylist); //반환 된 새로운 리스트를 랜더링
-    setCheckedItems(Array(updatedPlaylist.length).fill(false)); //체크 상태 초기화
+  // 컴포넌트가 마운트될 때 데이터 로드
+  useEffect(() => {
+    getPlaylistMusic();
+  }, []);
+
+  //상세보기 아이콘 클릭
+  const handleClick = () => {
+    setDetailButton(false);
+    setShowCheckbox(true);
   };
 
   // 저장 버튼 클릭시 상세보기 버튼 표시
@@ -251,17 +255,53 @@ function index(props) {
     setCheckedItems(updatedChecked);
   };
 
-  //이미지 업로드
-  const handleChangeImg = (e) => {
-    const file = e.target.files[0];
-    const imgUrl = URL.createObjectURL(file); //파일 주소 변환
-    console.log(imgUrl);
-    setUploadImg(imgUrl);
+  // 이미지 등록 함수
+  const registerImage = async (imageFile) => {
+    try {
+      const formData = new FormData();
+      formData.append('image', imageFile); // 이미지 파일 추가
+      console.log('전송할 이미지:', formData.get('image')); // 이미지 파일 확인
+
+      const response = await Instance.post(`/api/playlists/${playlistId}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      console.log('상태코드 = ', response.status);
+      console.log('응답결과 = ', response.data);
+      return response.data; // 등록된 이미지 URL 반환
+    } catch (error) {
+      console.error('이미지 등록 요청 실패:', error);
+      throw error; // 오류 발생 시 다시 던짐
+    }
   };
 
-  //파일 더블클릭시 수정
+  // 더블 클릭으로 이미지 수정
   const handleDoubleClick = () => {
     fileInputRef.current.click(); // 파일 입력 요소 클릭
+  };
+
+  const handleChangeImg = async (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const imgUrl = URL.createObjectURL(file); // 파일 주소 변환
+      setUploadImg(imgUrl); // 미리보기 이미지 업데이트
+
+      // 이미지 등록
+      try {
+        const updatedImageUrl = await registerImage(file); // 이미지 등록 함수 호출
+        console.log('이미지 등록 성공:', updatedImageUrl);
+        setUploadImg(updatedImageUrl); // 서버에서 반환된 이미지 URL로 미리보기 업데이트
+      } catch (error) {
+        console.error('이미지 등록 요청 실패:', error);
+      }
+    }
+  };
+
+  // 플레이리스트 제목 업데이트
+  const handleTitleChange = (index) => (e) => {
+    setPlaylistTitle(e.target.value);
   };
 
   //텍스트 화면에 표시
@@ -269,12 +309,54 @@ function index(props) {
     setText(e.target.value);
   };
 
-  const handleSubmit = (e) => {
+  // 플레이리스트 title, 설명 관리
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (isEditing) {
-      setIsEditing(false); // 편집 모드 종료
-    } else {
-      setIsEditing(true); // 편집 모드 시작
+
+    const updatedPlaylist = {
+      playlistTitle,
+      contents: text,
+      UserImg: uploadImg,
+    };
+
+    try {
+      // 서버에 PUT 요청하여 플레이리스트 업데이트
+      const response = await Instance.put(`/api/playlists/${playlistId}`, updatedPlaylist);
+      console.log('플레이리스트 업데이트 성공:', response.data);
+
+      // 상태 업데이트
+      setPlaylistTitle(response.data.playlistTitle);
+      setText(response.data.contents);
+      // 편집 모드 종료
+      setIsEditing(false);
+    } catch (error) {
+      console.error('플레이리스트 업데이트 실패:', error);
+    }
+  };
+
+  const handleClickDelete = async () => {
+    // 체크된 음악의 ID를 배열로 저장
+    const musicIdsToDelete = newMusicList.map((music, index) => (checkedItems[index] ? music.id : null)).filter(Boolean); // null 값을 제거하여 유효한 ID만 남김
+
+    if (musicIdsToDelete.length === 0) {
+      console.log('삭제할 음악이 선택되지 않았습니다.');
+      return; // 삭제할 음악이 없으면 종료
+    }
+
+    try {
+      // 음악 삭제 요청
+      const response = await Instance.delete(`/api/music/${playlistId}`, {
+        data: { musicIds: musicIdsToDelete }, // 삭제할 음악 ID 배열 전송
+      });
+
+      console.log('음악 삭제 성공:', response.data);
+
+      // 음악 리스트 업데이트
+      const updatedPlaylist = newMusicList.filter((_, index) => !checkedItems[index]);
+      setNewMusicList(updatedPlaylist);
+      setCheckedItems(Array(updatedPlaylist.length).fill(false)); // 체크 상태 초기화
+    } catch (error) {
+      console.error('음악 삭제 실패:', error);
     }
   };
 
@@ -284,7 +366,8 @@ function index(props) {
         <PlaylistbarBox>
           <Playlistbar>
             <MusicIcon />
-            <PlaylistTitle>드라이브엔 역시 올드 시티팝</PlaylistTitle>
+            <PlaylistTitleStyled>{isEditing ? '' : playlistTitle}</PlaylistTitleStyled>
+
             {detailButton ? (
               <DetailePoint onClick={handleClick}></DetailePoint>
             ) : (
@@ -300,33 +383,58 @@ function index(props) {
         <PlayAll>
           <Card>
             <div>
-              <UserImg>
-                {uploadImg ? (
-                  <LoadImg src={uploadImg} alt="등록 이미지" onDoubleClick={handleDoubleClick} title="더블클릭시 이미지를 수정할 수 있습니다. 35*35" />
-                ) : (
-                  <TagBg onClick={() => fileInputRef.current.click()}>선택</TagBg>
-                )}
-                <input type="file" onChange={handleChangeImg} ref={fileInputRef} style={{ display: 'none' }} />
-              </UserImg>
-              <TextBox>
-                <form onSubmit={handleSubmit}>
-                  <CardTextOutput>{isEditing ? '' : text}</CardTextOutput> {/*작성 후 화면에 표시*/}
-                  {isEditing ? (
-                    <CardTextInput value={text} onChange={handleTextChange} placeholder="💿 플레이리스트 설명을 작성해보세요!" rows="4" cols="40" />
-                  ) : null}{' '}
-                  <Tagbtn type="submit">{isEditing ? '확인' : '수정'}</Tagbtn>
-                </form>
-              </TextBox>
+              <form onSubmit={handleSubmit}>
+                {' '}
+                {/* form 태그를 상위 요소로 이동 */}
+                <div>
+                  <UserImg>
+                    {uploadImg ? (
+                      <LoadImg
+                        src={uploadImg}
+                        alt="이미지가 없어요"
+                        onDoubleClick={handleDoubleClick}
+                        accept=".jpg, .jpeg, .png"
+                        title="더블클릭시 이미지를 수정할 수 있습니다. 35*35"
+                      />
+                    ) : (
+                      <TagBg onClick={() => fileInputRef.current.click()}>선택</TagBg>
+                    )}
+                    <input type="file" onChange={handleChangeImg} ref={fileInputRef} style={{ display: 'none' }} />
+                  </UserImg>
+                  <TextBox>
+                    <Titleinput
+                      type="text"
+                      maxLength={19}
+                      title="최대 19자 입력가능"
+                      value={playlistTitle}
+                      onChange={handleTitleChange}
+                      disabled={!isEditing}
+                      placeholder={playlistTitle}
+                    />
+
+                    <CardTextOutput>{isEditing ? '' : playlistTitle}</CardTextOutput>
+                    {isEditing ? (
+                      <CardTextInput value={text || ''} onChange={handleTextChange} placeholder="💿 플레이리스트 설명을 작성해보세요!" rows="4" cols="40" />
+                    ) : null}
+                    <Tagbtn type="submit">{isEditing ? '저장하기' : '수정하기'}</Tagbtn>
+                  </TextBox>
+                </div>
+              </form>{' '}
+              {/* form 태그 닫기 */}
             </div>
           </Card>
 
           <PlayBg>
-            <MusicList
-              checkedItems={checkedItems} //체크 상태 전달
-              selectMusic={newMusicList} // 음악 목록 전달
-              onIconClick={handleIconClick} // 체크박스 핸들러 추가
-              showCheckbox={showCheckbox} //체크 박스 표시 상태 전달
-            />
+            {newMusicList.length > 0 ? (
+              <MusicList
+                checkedItems={checkedItems} //체크 상태 전달
+                selectMusic={newMusicList} // 음악 목록 전달
+                onIconClick={handleIconClick} // 체크박스 핸들러 추가
+                showCheckbox={showCheckbox} //체크 박스 표시 상태 전달
+              />
+            ) : (
+              <div>📦 담긴 음악이 없습니다.</div> // 음악이 없을 때 표시할 메시지
+            )}
           </PlayBg>
         </PlayAll>
       </Container>

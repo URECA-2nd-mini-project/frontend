@@ -3,6 +3,8 @@ import styled from 'styled-components';
 import PlayDetailIcon from '../../assets/icons/list-detail.svg?react';
 import PlayListIcon from '../../assets/icons/playlist.svg?react';
 import MusicIcon from '../../assets/icons/musiclist-alt.svg?react';
+import { Instance } from '../../utils/axiosConfig';
+import { useParams } from 'react-router-dom';
 
 const Background = styled.div`
   background: #f9f9f9;
@@ -45,7 +47,7 @@ const PlaylistBar = styled.div`
 `;
 
 // 플레이리스트 제목
-const PlaylistTitle = styled.div`
+const PlaylistTitleStyled = styled.div`
   font-weight: bold;
   flex: 1;
   text-align: left;
@@ -113,52 +115,93 @@ const CheckboxStyle = styled.input`
 function index(props) {
   const [detailButton, setDetailButton] = useState(true); //상세보기 버튼
   const [checkBox, setCheckBox] = useState(false); //체크박스 유무
+  const [checkedItems, setCheckedItems] = useState([]); //체크박스 체크 여부
+  const [playlists, setPlaylists] = useState([]); //플레이리스트
+  const [showSaveButton, setShowSaveButton] = useState(false); // 저장 버튼 표시 상태
+  const { playlistId } = useParams(); // URL에서 playlistId 추출
 
-  const Playlists = [
-    {
-      name: '코딩할 때 듣는 Lofi',
-      id: 1,
-    },
-    {
-      name: '드라이브엔 역시 시티팝',
-      id: 2,
-    },
-    {
-      name: '운동하면서 듣는 J-POP',
-      id: 3,
-    },
-  ];
+  //플레이리스트 load
+  const getPlaylists = async () => {
+    try {
+      const response = await Instance.get(`/api/playlists`);
+      console.log('상태코드 = ', response.status);
+      console.log('응답결과 = ', response.data);
 
-  const [checkedItems, setCheckedItems] = useState(Array(Playlists.length).fill(false)); //체크박스 체크 여부
-  const [playlists, setPlaylists] = useState([...Playlists]); //플레이리스트
+      response.data.status;
+      const playlistsData = response.data; // playlists를 추출
+      setPlaylists(playlistsData);
+      setCheckedItems(Array(playlistsData.length).fill(false));
+    } catch (error) {
+      console.error('응답실패 = ', error);
+    }
+  };
 
-  // 플레이리스트 수정
+  useEffect(() => {
+    getPlaylists();
+  }, []);
+
+  // 플레이리스트 수정, 삭제 버튼 표시
   const handleClick = () => {
     setDetailButton((prev) => !prev);
     setCheckBox((prev) => !prev);
   };
 
-  //플레이리스트 삭제
-  const handleClickDelete = () => {
-    const newPlaylists = playlists.filter((_, index) => !checkedItems[index]);
-    setPlaylists(newPlaylists);
-    setCheckedItems(Array(newPlaylists.length).fill(false)); // 체크 상태 초기화
+  //플레이스트 삭제
+  const handleClickDelete = async () => {
+    try {
+      // 체크된 플레이리스트의 playlistId 배열 생성
+      const idsToDelete = playlists.filter((_, index) => checkedItems[index]).map((item) => item.playlistId);
+
+      console.log('삭제할 플레이리스트 IDs:', idsToDelete);
+
+      if (idsToDelete.length === 0) {
+        console.log('삭제할 플레이리스트가 없습니다.');
+        return;
+      }
+
+      // 삭제 요청
+      const response = await Instance.delete(`/api/playlists`, {
+        data: { playlistIds: idsToDelete }, // 요청 본문에 playlistId 배열 포함
+      });
+
+      console.log('플레이리스트 삭제 응답:', response.data);
+
+      // 삭제 후 상태 업데이트
+      const newPlaylists = playlists.filter((_, index) => !checkedItems[index]);
+      setPlaylists(newPlaylists);
+      setCheckedItems(Array(newPlaylists.length).fill(false)); // 체크 상태 초기화
+      setShowSaveButton(true); // 저장 버튼 표시 상태 변경
+
+      console.log('플레이리스트가 삭제되었습니다.');
+    } catch (error) {
+      console.error('플레이리스트 삭제 실패:', error);
+    }
   };
 
-  // playlists 변경 확인
-  useEffect(() => {
-    console.log(playlists);
-  }, [playlists]);
+  // 상태를 서버에 반영하는 함수
+  const savePlaylists = async (playlistsToSave) => {
+    try {
+      // 필요한 형식에 맞게 데이터 변환
+      const playlistsData = playlistsToSave.map((playlist) => ({
+        playlistId: playlist.playlistId, // ID를 포함
+        playlistTitle: playlist.playlistTitle, // 필요한 다른 데이터 추가
+        // 필요한 경우 추가 데이터도 여기에 포함
+      }));
 
-  // 플레이리스트 저장
-  const handleClickSave = () => {
-    setDetailButton((prev) => !prev);
-    setCheckBox((prev) => !prev);
+      const response = await Instance.post('/api/playlists/save', { playlists: playlistsData });
+      console.log('플레이리스트 상태 저장 성공:', response.data);
+    } catch (error) {
+      console.error('플레이리스트 상태 저장 실패:', error);
+    }
   };
 
   // 체크 여부 이벤트
   const handleIconClick = (index) => {
-    setCheckedItems((prev) => prev.map((item, i) => (i === index ? !item : item)));
+    setCheckedItems((prev) => {
+      const newCheckedItems = prev.map((item, i) => (i === index ? !item : item));
+      console.log('현재 체크 상태:', newCheckedItems);
+      return newCheckedItems;
+    });
   };
 
   return (
@@ -166,30 +209,32 @@ function index(props) {
       <Container>
         <PlaylistBar>
           <PlayListIcon></PlayListIcon>
-          <PlaylistTitle>모든 플레이리스트</PlaylistTitle>
+          <PlaylistTitleStyled>모든 플레이리스트</PlaylistTitleStyled>
           {detailButton ? ( //상세버튼 클릭시 삭제, 저장버튼 표시
             <DetailePoint onClick={handleClick}></DetailePoint>
           ) : (
             <>
               <TagBg onClick={handleClickDelete}>삭제</TagBg>
-              <TagBg onClick={handleClickSave} style={{ color: 'var(--primary-color)', border: '1px solid var(--primary-color)' }}>
-                저장
-              </TagBg>
+              {showSaveButton && (
+                <TagBg onClick={() => savePlaylists(playlists)} style={{ color: 'var(--primary-color)', border: '1px solid var(--primary-color)' }}>
+                  저장
+                </TagBg>
+              )}
             </>
           )}
         </PlaylistBar>
         {playlists.map((item, index) => (
-          <PlaylistBox key={item.id}>
+          <PlaylistBox key={item.playlistId}>
             <MusicIcon></MusicIcon>
-            <PlaylistContent>{item.name}</PlaylistContent>
-            <CheckCtrl htmlFor={index}>
+            <PlaylistContent>{item.playlistTitle}</PlaylistContent>
+            <CheckCtrl htmlFor={item.playlistId}>
               {checkBox && (
                 <CheckboxStyle
                   type="checkbox"
-                  id={index}
-                  checked={checkedItems[index]} // checkedItems 배열을 사용하여 체크 상태 설정
-                  onChange={() => handleIconClick(index)} // 체크박스 클릭시 이벤트 발생
-                ></CheckboxStyle>
+                  id={item.playlistId} // 고유 ID로 설정
+                  checked={checkedItems[index]} // 체크 상태 설정
+                  onChange={() => handleIconClick(index)} // 체크박스 클릭 시 이벤트 발생
+                />
               )}
             </CheckCtrl>
           </PlaylistBox>
