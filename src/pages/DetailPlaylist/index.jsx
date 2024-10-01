@@ -212,18 +212,19 @@ function index(props) {
 
   const getPlaylistMusic = async () => {
     try {
-      const response = await Instance.get(`/api/playlists/music`);
+      const response = await Instance.get(`/api/playlists/${playlistId}`);
 
       // 음악 정보를 상태에 설정
       const playTitle = response.data.playlistTitle;
-      const musicData = response.data.flatMap(({ music }) =>
-        music.map(({ musicId, title, artist }) => ({
-          musicId,
-          title,
-          artist,
-        }))
-      );
+      // const musicData = response.data.flatMap(({ music }) =>
+      //   music.map(({ musicId, title, artist }) => ({
+      //     musicId,
+      //     title,
+      //     artist,
+      //   }))
+      // );
 
+      const musicData = response.data.musics;
       setPlaylistTitle(playTitle);
       setNewMusicList(musicData);
       console.log('음악 목록:', musicData);

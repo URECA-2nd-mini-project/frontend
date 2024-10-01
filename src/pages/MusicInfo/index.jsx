@@ -89,7 +89,7 @@ const Index = () => {
   const Card = () => {
     switch (selected) {
       case 'add-playlist':
-        return <AddPlaylistCard></AddPlaylistCard>;
+        return <AddPlaylistCard music={music}></AddPlaylistCard>;
       case 'add-emotion':
         return <AddEmotionCard music={music}></AddEmotionCard>;
     }
