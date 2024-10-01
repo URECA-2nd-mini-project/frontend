@@ -111,11 +111,11 @@ const AddPlaylistCard = ({ music }) => {
         title: music.title,
         playlistIds: playlistIdData,
       });
-      console.log('getPlaylist 응답 코드: ', response.headers);
-      console.log('getPlaylist 응답 결과: ', response.data);
+      console.log('postPlaylist 응답 코드: ', response.headers);
+      console.log('postPlaylist 응답 결과: ', response.data);
       setPlaylists(response.data);
     } catch (error) {
-      console.log('getPlaylist 요청 실패: ', error);
+      console.log('postPlaylist 요청 실패: ', error);
     }
   };
 

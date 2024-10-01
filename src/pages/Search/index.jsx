@@ -37,7 +37,7 @@ const Index = () => {
           key: import.meta.env.VITE_YOUTUBE_API_KEY,
           part: 'snippet',
           q: `${keyword} auto-generated`, // 검색 키워드
-          maxResults: 5, // 최대 검색 개수
+          maxResults: 30, // 최대 검색 개수
           type: 'video', // 검색 결과의 타입(비디오, 플레이리스트, 채널)
           videoEmbeddable: true, // 웹 페이지에 삽입할 수 있는 영상만 검색
           videoDuration: 'short',
