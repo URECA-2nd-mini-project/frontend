@@ -26,24 +26,28 @@ const TypingTitle = () => {
   useEffect(() => {
     const typingInterval = setInterval(() => {
       setBlogTitle((prevTitleValue) => {
-        let result = prevTitleValue ? prevTitleValue + completionWords[currentLine][count] : completionWords[currentLine][0];
+        // 현재 줄이 정의되어 있을 경우
+        if (completionWords[currentLine]) {
+          let result = prevTitleValue + (count < completionWords[currentLine].length ? completionWords[currentLine][count] : '');
 
-        setCount(count + 1);
+          setCount(count + 1);
 
-        if (count >= completionWords[currentLine].length) {
-          setCount(0);
+          if (count >= completionWords[currentLine].length) {
+            setCount(0);
 
-          // 모든 줄을 다 출력한 경우 초기화
-          if (currentLine >= completionWords.length - 1) {
-            setCurrentLine(0);
-            setBlogTitle(''); // 모든 줄 출력 후 초기화
-          } else {
-            setCurrentLine(currentLine + 1); // 다음 줄로 넘어감
-            setBlogTitle(prevTitleValue + '\n'); // 줄 바꿈 추가
+            // 모든 줄을 다 출력한 경우 초기화
+            if (currentLine >= completionWords.length - 1) {
+              setCurrentLine(0);
+              return ''; // 모든 줄 출력 후 초기화
+            } else {
+              setCurrentLine(currentLine + 1); // 다음 줄로 넘어감
+              return prevTitleValue + '\n'; // 줄 바꿈 추가
+            }
           }
-        }
 
-        return result;
+          return result;
+        }
+        return ''; // safety fallback
       });
     }, 300);
 
