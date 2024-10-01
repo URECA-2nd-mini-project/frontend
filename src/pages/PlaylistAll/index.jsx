@@ -130,7 +130,6 @@ function index(props) {
       response.data.status;
       const playlistsData = response.data; // playlists를 추출
       setPlaylists(playlistsData);
-      console.log('여기다', playlistsData);
       setCheckedItems(Array(playlistsData.length).fill(false));
     } catch (error) {
       console.error('응답실패 = ', error);
@@ -162,18 +161,26 @@ function index(props) {
 
       // 삭제 요청
       const response = await Instance.delete(`/api/playlists`, {
-        data: { playlistIds: idsToDelete }, // 요청 본문에 playlistId 배열 포함
+        data: idsToDelete, // idsToDelete가 배열이어야 함
       });
-
-      console.log('플레이리스트 삭제 응답:', response.data);
 
       // 삭제 후 상태 업데이트
       const newPlaylists = playlists.filter((_, index) => !checkedItems[index]);
       setPlaylists(newPlaylists);
       setCheckedItems(Array(newPlaylists.length).fill(false)); // 체크 상태 초기화
+      setCheckBox((prev) => !prev);
       setShowSaveButton(true); // 저장 버튼 표시 상태 변경
-
+      setDetailButton((prev) => !prev);
+      alert('플레이리스트가 삭제되었습니다.');
       console.log('플레이리스트가 삭제되었습니다.');
+      // 플레이리스트 저장 (여기서 playlistData를 제공해야 합니다)
+      for (const id of idsToDelete) {
+        const playlistToSave = newPlaylists.find((playlist) => playlist.playlistId === id);
+        if (playlistToSave) {
+          await savePlaylists(id, playlistToSave); // playlistToSave를 전달
+        }
+      }
+      savePlaylists(newPlaylists);
     } catch (error) {
       console.error('플레이리스트 삭제 실패:', error);
     }
@@ -185,19 +192,28 @@ function index(props) {
    * [ ] api 호출 경로 수정
    * [ ] api 호출 시 헤더에 'Content-Type': 'multipart/form-data' 추가
    */
-  const savePlaylists = async (playlistsToSave) => {
-    try {
-      // 필요한 형식에 맞게 데이터 변환
-      const playlistsData = playlistsToSave.map((playlist) => ({
-        playlistId: playlist.playlistId, // ID를 포함
-        playlistTitle: playlist.playlistTitle, // 필요한 다른 데이터 추가
-        // 필요한 경우 추가 데이터도 여기에 포함
-      }));
 
-      const response = await Instance.post('/api/playlists/save', { playlists: playlistsData });
+  const savePlaylists = async (playlistId, playlistData) => {
+    try {
+      const formData = new FormData();
+
+      // 요청 본문에 맞춰 데이터 추가
+      formData.append('playlistTitle', playlistData.playlistTitle);
+      console.log(playlistId);
+      formData.append('contents', playlistData.contents); // 설명 추가
+
+      // API 호출
+      const response = await Instance.put(`/api/playlists/${playlistId}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data', // FormData 형식으로 설정
+        },
+      });
+
       console.log('플레이리스트 상태 저장 성공:', response.data);
+      return response.data; // 응답 데이터 반환
     } catch (error) {
       console.error('플레이리스트 상태 저장 실패:', error);
+      throw error; // 오류 발생 시 다시 던짐
     }
   };
 
@@ -209,6 +225,9 @@ function index(props) {
       return newCheckedItems;
     });
   };
+  // const handleSaveClick = () => {
+  //   savePlaylists(playlists);
+  // };
 
   return (
     <Background>
@@ -221,11 +240,11 @@ function index(props) {
           ) : (
             <>
               <TagBg onClick={handleClickDelete}>삭제</TagBg>
-              {showSaveButton && (
-                <TagBg onClick={() => savePlaylists(playlists)} style={{ color: 'var(--primary-color)', border: '1px solid var(--primary-color)' }}>
+              {/* {showSaveButton && (
+                <TagBg onClick={handleSaveClick} style={{ color: 'var(--primary-color)', border: '1px solid var(--primary-color)' }}>
                   저장
                 </TagBg>
-              )}
+              )} */}
             </>
           )}
         </PlaylistBar>
