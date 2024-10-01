@@ -2,6 +2,8 @@ import styled from 'styled-components';
 import Checked from '../../assets/icons/checkedbox.svg?react';
 import Unchecked from '../../assets/icons/checkbox.svg?react';
 import { useState } from 'react';
+import { Instance } from '../../utils/axiosConfig';
+import { useEffect } from 'react';
 
 const Container = styled.div`
   position: relative;
@@ -74,9 +76,6 @@ const SaveBtn = styled.button`
   font-weight: 700;
 `;
 
-// NOTE) 플레이리스트 더미데이터, 통신 구현 후 수정 필요
-const dummyPlaylist = ['코딩할 때 듣는 Lofi', '드라이브엔 역시 올드 시티팝', '겨울에 듣는 재즈 캐롤', '산책할 때 듣는 8090 명곡들'];
-
 const CheckPlaylist = ({ title, checked, onClick }) => {
   return (
     <CheckPlaylistContainer onClick={onClick} checked={checked}>
@@ -87,8 +86,38 @@ const CheckPlaylist = ({ title, checked, onClick }) => {
   );
 };
 
-const AddPlaylistCard = () => {
+const AddPlaylistCard = ({ music }) => {
+  const [playlists, setPlaylists] = useState([]);
   const [selectedPlaylist, setSelectedPlaylist] = useState([]);
+
+  // 플레이리스트 정보를 서버로부터 불러옴
+  const getPlaylists = async () => {
+    try {
+      const response = await Instance.get('/api/playlists');
+      console.log('getPlaylist 응답 코드: ', response.headers);
+      console.log('getPlaylist 응답 결과: ', response.data);
+      setPlaylists(response.data);
+    } catch (error) {
+      console.log('getPlaylist 요청 실패: ', error);
+    }
+  };
+
+  const postMusicToPlaylist = async () => {
+    const playlistIdData = selectedPlaylist.map((item) => item.playlistId);
+    try {
+      const response = await Instance.post('/api/playlists/music', {
+        musicId: music.musicId,
+        artist: music.artist,
+        title: music.title,
+        playlistIds: playlistIdData,
+      });
+      console.log('getPlaylist 응답 코드: ', response.headers);
+      console.log('getPlaylist 응답 결과: ', response.data);
+      setPlaylists(response.data);
+    } catch (error) {
+      console.log('getPlaylist 요청 실패: ', error);
+    }
+  };
 
   // 플레이리스트 선택 시 상태 업데이트
   const handlePlaylistClick = (item) => {
@@ -102,14 +131,19 @@ const AddPlaylistCard = () => {
   };
 
   const handleClickSaveButton = () => {
-    console.log(selectedPlaylist);
+    postMusicToPlaylist();
+    getPlaylists();
   };
+
+  useEffect(() => {
+    getPlaylists();
+  }, []);
 
   return (
     <Container>
       <HeadingText>플레이리스트에 저장하기</HeadingText>
-      {dummyPlaylist.map((item, index) => (
-        <CheckPlaylist key={index} title={item} checked={selectedPlaylist.includes(item)} onClick={() => handlePlaylistClick(item)} />
+      {playlists.map((item, index) => (
+        <CheckPlaylist key={index} title={item.playlistTitle} checked={selectedPlaylist.includes(item)} onClick={() => handlePlaylistClick(item)} />
       ))}
       <SaveBtn onClick={handleClickSaveButton}>저장하기</SaveBtn>
     </Container>
